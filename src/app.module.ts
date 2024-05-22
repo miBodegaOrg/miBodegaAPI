@@ -1,10 +1,19 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProductsModule } from './products/products.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { config } from 'process';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb+srv://gonchis:GQ7wyqvCOoe3ozHb@devcluster.lvcivvg.mongodb.net/miBodegaDB'),
+    ConfigModule.forRoot({ isGlobal: true }),
+    MongooseModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return { uri: configService.get<string>('MONGODB_URI')}
+      }
+    }),
     ProductsModule
   ],
   controllers: [
