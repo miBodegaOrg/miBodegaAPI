@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, HttpException, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, Param, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/CreateProduct.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Products')
 @Controller('api/v1/products')
@@ -26,8 +27,13 @@ export class ProductsController {
 
     @Post()
     @UseGuards(AuthGuard())
-    createProduct(@Body() createProductDto: CreateProductDto, @Req() req) {
-        return this.productsService.createProduct(createProductDto, req.user);
+    @UseInterceptors(FileInterceptor('image'))
+    createProduct(
+        @Body() createProductDto: CreateProductDto,
+        @Req() req,
+        @UploadedFile() image: Express.Multer.File
+    ) {
+        return this.productsService.createProduct(createProductDto, req.user, image);
     }
 
     @Put(':id')

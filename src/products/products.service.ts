@@ -5,13 +5,19 @@ import { Product } from 'src/schemas/Product.schema';
 import mongoose, { Model } from 'mongoose';
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 import { Shop } from 'src/schemas/Shop.schema';
+import { R2Service } from 'src/r2/r2.service';
 
 @Injectable()
 export class ProductsService {
-    constructor(@InjectModel(Product.name) private productModel: Model<Product>) {}
+    constructor(
+        @InjectModel(Product.name) private productModel: Model<Product>,
+        private readonly r2Service: R2Service
+    ) {}
     
-    createProduct(createProductDto: CreateProductDto, shop: Shop) {
-        const data = Object.assign(createProductDto, { shop: shop._id });
+    async createProduct(createProductDto: CreateProductDto, shop: Shop, image: Express.Multer.File) {
+        const url = await this.r2Service.uploadFile(image.buffer, image.mimetype);
+
+        const data = Object.assign(createProductDto, { shop: shop._id, image_url: url});
 
         const createdProduct = new this.productModel(data);
         return createdProduct.save();
