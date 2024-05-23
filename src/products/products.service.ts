@@ -15,7 +15,8 @@ export class ProductsService {
     ) {}
     
     async createProduct(createProductDto: CreateProductDto, shop: Shop, image: Express.Multer.File) {
-        const url = await this.r2Service.uploadFile(image.buffer, image.mimetype);
+        let url = ''
+        if (image) url = await this.r2Service.uploadFile(image.buffer, image.mimetype);
 
         const data = Object.assign(createProductDto, { shop: shop._id, image_url: url});
 
@@ -41,9 +42,19 @@ export class ProductsService {
         return this.productModel.findOneAndDelete({ _id: id, shop: shop._id });
     }
 
-    updateProduct(id: string, updateProductDto: UpdateProductDto, shop: Shop) {
+    async updateProduct(id: string, updateProductDto: UpdateProductDto, shop: Shop, image: Express.Multer.File) {
         const isValid = mongoose.Types.ObjectId.isValid(id);
         if (!isValid) throw new HttpException('Invalid ID', 400);
+
+        const product = await this.productModel.findOne({ _id: id, shop: shop._id });
+        if (!product) throw new HttpException('Product not found', 404);
+
+        if (product.image_url !== '') await this.r2Service.deleteFile(product.image_url.split('/').pop());   
+
+        if (image) {
+            let url = await this.r2Service.uploadFile(image.buffer, image.mimetype);
+            return this.productModel.findOneAndUpdate({ _id: id, shop: shop._id }, { ...updateProductDto, image_url: url }, { new: true });
+        } 
         
         return this.productModel.findOneAndUpdate({ _id: id, shop: shop._id }, updateProductDto, { new: true });
     }

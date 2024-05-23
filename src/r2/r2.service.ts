@@ -1,5 +1,5 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { Injectable } from '@nestjs/common';
+import { PutObjectCommand, S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -34,7 +34,15 @@ export class R2Service {
 
         return `https://pub-67cf39beb81c4c46a109e7c06577c1a4.r2.dev/${key}`;
     } catch (error) {
-        throw new Error(`Failed to upload file: ${error.message}`);
+        throw new HttpException('Error uploading image', 500);
     }
   }
+
+    async deleteFile(key: string): Promise<void> {
+        const command = new DeleteObjectCommand({
+            Bucket: this.bucketName,
+            Key: key,
+        });
+        await this.s3Client.send(command);
+    }
 }

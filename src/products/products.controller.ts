@@ -38,17 +38,21 @@ export class ProductsController {
 
     @Put(':id')
     @UseGuards(AuthGuard())
-    async updateProduct(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @Req() req) {
-        const product = await this.productsService.updateProduct(id, updateProductDto, req.user);
+    @UseInterceptors(FileInterceptor('image'))
+    async updateProduct(
+        @Param('id') id: string,
+        @Body() updateProductDto: UpdateProductDto,
+        @Req() req,
+        @UploadedFile() image: Express.Multer.File
+    ) {
+        const product = await this.productsService.updateProduct(id, updateProductDto, req.user, image);
         if (!product) throw new HttpException('Product not found', 404);
         return product;
     }
 
     @Delete(':id')
     @UseGuards(AuthGuard())
-    async removeProduct(@Param('id') id: string, @Req() req) {
-        const product = await this.productsService.deleteProduct(id, req.user);
-        if (!product) throw new HttpException('Product not found', 404);
-        return product;
+    removeProduct(@Param('id') id: string, @Req() req) {
+        return this.productsService.deleteProduct(id, req.user);
     }
 }
