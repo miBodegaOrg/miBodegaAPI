@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Shop } from 'src/schemas/Shop.schema';
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcryptjs'
 import { JwtService } from '@nestjs/jwt';
 import { SignUpDto } from './dto/SignUp.dto';
 import { SignInDto } from './dto/SignIn.dto';

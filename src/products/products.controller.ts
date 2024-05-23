@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, HttpException, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, Param, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/CreateProduct.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Products')
 @Controller('api/v1/products')
@@ -26,23 +27,32 @@ export class ProductsController {
 
     @Post()
     @UseGuards(AuthGuard())
-    createProduct(@Body() createProductDto: CreateProductDto, @Req() req) {
-        return this.productsService.createProduct(createProductDto, req.user);
+    @UseInterceptors(FileInterceptor('image'))
+    createProduct(
+        @Body() createProductDto: CreateProductDto,
+        @Req() req,
+        @UploadedFile() image: Express.Multer.File
+    ) {
+        return this.productsService.createProduct(createProductDto, req.user, image);
     }
 
     @Put(':id')
     @UseGuards(AuthGuard())
-    async updateProduct(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @Req() req) {
-        const product = await this.productsService.updateProduct(id, updateProductDto, req.user);
+    @UseInterceptors(FileInterceptor('image'))
+    async updateProduct(
+        @Param('id') id: string,
+        @Body() updateProductDto: UpdateProductDto,
+        @Req() req,
+        @UploadedFile() image: Express.Multer.File
+    ) {
+        const product = await this.productsService.updateProduct(id, updateProductDto, req.user, image);
         if (!product) throw new HttpException('Product not found', 404);
         return product;
     }
 
     @Delete(':id')
     @UseGuards(AuthGuard())
-    async removeProduct(@Param('id') id: string, @Req() req) {
-        const product = await this.productsService.deleteProduct(id, req.user);
-        if (!product) throw new HttpException('Product not found', 404);
-        return product;
+    daleteProduct(@Param('id') id: string, @Req() req) {
+        return this.productsService.deleteProduct(id, req.user);
     }
 }
