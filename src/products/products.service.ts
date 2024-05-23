@@ -35,9 +35,13 @@ export class ProductsService {
         return this.productModel.findOne({ _id: id, shop: shop._id });
     }
 
-    deleteProduct(id: string, shop: Shop) {
+    async deleteProduct(id: string, shop: Shop) {
         const isValid = mongoose.Types.ObjectId.isValid(id);
         if (!isValid) throw new HttpException('Invalid ID', 400);
+
+        const product = await this.productModel.findOne({ _id: id, shop: shop._id });
+        if (!product) throw new HttpException('Product not found', 404);
+        if (product.image_url !== '') this.r2Service.deleteFile(product.image_url.split('/').pop())
         
         return this.productModel.findOneAndDelete({ _id: id, shop: shop._id });
     }

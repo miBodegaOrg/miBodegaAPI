@@ -52,7 +52,7 @@ export class ProductsController {
 
     @Delete(':id')
     @UseGuards(AuthGuard())
-    removeProduct(@Param('id') id: string, @Req() req) {
+    daleteProduct(@Param('id') id: string, @Req() req) {
         return this.productsService.deleteProduct(id, req.user);
     }
 }
