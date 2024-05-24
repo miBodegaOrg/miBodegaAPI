@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/CreateProduct.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from 'src/schemas/Product.schema';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { PaginateModel } from 'mongoose';
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 import { Shop } from 'src/schemas/Shop.schema';
 import { R2Service } from 'src/r2/r2.service';
@@ -10,7 +10,7 @@ import { R2Service } from 'src/r2/r2.service';
 @Injectable()
 export class ProductsService {
     constructor(
-        @InjectModel(Product.name) private productModel: Model<Product>,
+        @InjectModel(Product.name) private productModel: PaginateModel<Product>,
         private readonly r2Service: R2Service
     ) {}
     
@@ -24,8 +24,16 @@ export class ProductsService {
         return createdProduct.save();
     }
 
-    getAllProducts(shop: Shop) {
-        return this.productModel.find({ shop: shop._id });
+    getAllProducts(shop: Shop, search: string, page: number, limit: number) {
+
+        const searchQuery = search ? {
+            name: {
+                $regex: search,
+                $options: 'i'
+            }
+        } : {}
+
+        return this.productModel.paginate({ shop: shop._id, ...searchQuery }, { page, limit })
     }
 
     getProductById(id: string, shop: Shop) {

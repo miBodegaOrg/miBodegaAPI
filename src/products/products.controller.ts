@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, HttpException, Param, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, Param, Post, Put, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/CreateProduct.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Query as ExpressQuery } from 'express-serve-static-core';
 
 @ApiTags('Products')
 @Controller('api/v1/products')
@@ -13,8 +14,8 @@ export class ProductsController {
 
     @Get()
     @UseGuards(AuthGuard())
-    getAllProducts(@Req() req) {
-        return this.productsService.getAllProducts(req.user);
+    getAllProducts(@Req() req, @Query('search') search: string, @Query('page') page: number, @Query('limit') limit: number) {
+        return this.productsService.getAllProducts(req.user, search, page, limit);
     }
 
     @Get(':id')
