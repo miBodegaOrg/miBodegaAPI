@@ -17,9 +17,9 @@ export class AuthService {
     async signUp(signUpDto: SignUpDto) {
         signUpDto.password = await bcrypt.hash(signUpDto.password, 10)
 
-        const shop = await this.shopModel.create(signUpDto)
+        await this.shopModel.create(signUpDto)
 
-        return { token: this.jwtService.sign({ id: shop._id })}
+        return { "msg": "Shop created successfully" }
     }
 
     async signIn(signInDto: SignInDto) {
@@ -33,7 +33,7 @@ export class AuthService {
         
         if (!isPasswordMatched) throw new UnauthorizedException('Invalid user or password')
 
-        return { token: this.jwtService.sign({ id: shop._id })}
+        return { ...shop.toObject(), token: this.jwtService.sign({ id: shop._id })}
     }
 
     async validateShop(id: string) {
