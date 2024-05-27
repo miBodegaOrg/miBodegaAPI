@@ -18,12 +18,18 @@ export class ProductsController {
         return this.productsService.getAllProducts(req.user, search, page, limit);
     }
 
-    @Get(':id')
+    @Get(':code')
     @UseGuards(AuthGuard())
-    async getProductById(@Param('id') id: string, @Req() req) {
-        const product = await this.productsService.getProductById(id, req.user);
+    async getProductByCode(@Param('code') code: string, @Req() req) {
+        const product = await this.productsService.getProductByCode(code, req.user);
         if (!product) throw new HttpException('Product not found', 404);
         return product;
+    }
+
+    @Post('generate-code')
+    @UseGuards(AuthGuard())
+    generateProductCode(@Req() req) {
+        return this.productsService.generateProductCode(req.user);
     }
 
     @Post()
