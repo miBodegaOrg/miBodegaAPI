@@ -28,8 +28,9 @@ export class ProductsController {
 
     @Post('generate-code')
     @UseGuards(AuthGuard())
-    generateProductCode(@Req() req) {
-        return this.productsService.generateProductCode(req.user);
+    async generateProductCode(@Req() req) {
+        const code = await this.productsService.generateProductCode(req.user);
+        return { code };
     }
 
     @Post()
