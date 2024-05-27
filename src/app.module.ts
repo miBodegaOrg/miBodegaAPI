@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SalesModule } from './sales/sales.module';
 import { R2Service } from './r2/r2.service';
 import { R2Module } from './r2/r2.module';
+import { BarcodeModule } from './barcode/barcode.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { R2Module } from './r2/r2.module';
     AuthModule,
     SalesModule,
     R2Module,
+    BarcodeModule,
   ],
   controllers: [
   ],

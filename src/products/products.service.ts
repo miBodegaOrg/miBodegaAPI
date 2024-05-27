@@ -6,6 +6,7 @@ import mongoose, { PaginateModel } from 'mongoose';
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 import { Shop } from 'src/schemas/Shop.schema';
 import { R2Service } from 'src/r2/r2.service';
+import { generateRandom11DigitNumber } from 'src/utils/generateRandom11DigitNumber';
 
 @Injectable()
 export class ProductsService {
@@ -36,11 +37,8 @@ export class ProductsService {
         return this.productModel.paginate({ shop: shop._id, ...searchQuery }, { page, limit })
     }
 
-    getProductById(id: string, shop: Shop) {
-        const isValid = mongoose.Types.ObjectId.isValid(id);
-        if (!isValid) throw new HttpException('Product not found', 404);
-        
-        return this.productModel.findOne({ _id: id, shop: shop._id });
+    getProductByCode(code: string, shop: Shop) {
+        return this.productModel.findOne({ code, shop: shop._id });
     }
 
     async deleteProduct(id: string, shop: Shop) {
@@ -69,5 +67,14 @@ export class ProductsService {
         } 
         
         return this.productModel.findOneAndUpdate({ _id: id, shop: shop._id }, updateProductDto, { new: true });
+    }
+
+    async generateProductCode(shop: Shop) {
+        let code = generateRandom11DigitNumber();
+        while (await this.getProductByCode(code, shop)) {
+            code = generateRandom11DigitNumber();
+        }
+
+        return code;
     }
 }

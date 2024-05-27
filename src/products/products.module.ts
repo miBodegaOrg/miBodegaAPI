@@ -18,6 +18,7 @@ import { R2Module } from 'src/r2/r2.module';
     R2Module
   ],
   controllers: [ProductsController],
-  providers: [ProductsService]
+  providers: [ProductsService],
+  exports: [ProductsService],
 })
 export class ProductsModule {}
