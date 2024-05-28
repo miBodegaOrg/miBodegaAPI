@@ -16,6 +16,9 @@ export class ProductsService {
     ) {}
     
     async createProduct(createProductDto: CreateProductDto, shop: Shop, image: Express.Multer.File) {
+        const product = await this.getProductByCode(createProductDto.code, shop);
+        if (product) throw new HttpException(`Product with code ${createProductDto.code} already exists`, 400);
+        
         let url = ''
         if (image) url = await this.r2Service.uploadFile(image.buffer, image.mimetype);
 
@@ -76,5 +79,12 @@ export class ProductsService {
         }
 
         return code;
+    }
+
+    async removeStock(code: string, quantity: number, shop: Shop) {
+        const product = await this.getProductByCode(code, shop);
+        if (!product) throw new HttpException('Product not found', 404);
+
+        return this.productModel.findOneAndUpdate({ code, shop: shop._id }, { stock: product.stock - quantity });
     }
 }
