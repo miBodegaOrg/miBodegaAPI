@@ -1,12 +1,18 @@
-import { IsArray, IsNotEmpty } from "class-validator";
+import { IsArray, IsNotEmpty, IsNumber, IsString, Min } from "class-validator";
 
-interface Product {
+export class ProductInterface {
+    @IsString()
+    @IsNotEmpty()
     code: string;
+
+    @IsNumber()
+    @IsNotEmpty()
+    @Min(1)
     quantity: number;
 }
 
 export class CreateSaleDto {
     @IsArray()
     @IsNotEmpty()
-    products: Product[];
+    products: ProductInterface[];
 }

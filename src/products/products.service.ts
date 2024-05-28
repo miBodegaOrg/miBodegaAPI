@@ -77,4 +77,11 @@ export class ProductsService {
 
         return code;
     }
+
+    async removeStock(code: string, quantity: number, shop: Shop) {
+        const product = await this.getProductByCode(code, shop);
+        if (!product) throw new HttpException('Product not found', 404);
+
+        return this.productModel.findOneAndUpdate({ code, shop: shop._id }, { stock: product.stock - quantity });
+    }
 }
