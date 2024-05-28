@@ -1,13 +1,13 @@
 import { Body, Controller, Delete, Get, HttpException, Param, Post, Put, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/CreateProduct.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Query as ExpressQuery } from 'express-serve-static-core';
 
 @ApiTags('Products')
+@ApiBearerAuth()
 @Controller('api/v1/products')
 export class ProductsController {
     constructor(private productsService: ProductsService) {}
