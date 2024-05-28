@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Sale } from 'src/schemas/Sales.schema';
 import { CreateSaleDto } from './dto/CreateSale.dto';
 import { Shop } from 'src/schemas/Shop.schema';
@@ -14,11 +14,18 @@ export class SalesService {
     ) {}
 
     async createSale(createSaleDto: CreateSaleDto, shop: Shop) {
+        const productCodes = createSaleDto.products.map(product => product.code);
+        const uniqueCodes = new Set(productCodes);
+
+        if (uniqueCodes.size !== productCodes.length) throw new HttpException('Products code must be unique', 400);
+
         let subtotal = 0;
-        for (const product of createSaleDto.products) {
-            let prod = await this.productService.getProductByCode(product.code, shop);
-            if (!prod) throw new HttpException(`Product ${product.code} not found`, 404);
-            subtotal += prod.price * product.quantity;
+        for (let i = 0; i < createSaleDto.products.length; i++) {
+            let prod = await this.productService.getProductByCode(createSaleDto.products[i].code, shop);
+            if (!prod) throw new HttpException(`Product ${createSaleDto.products[i].code} not found`, 404);
+            createSaleDto.products[i].name = prod.name;
+            createSaleDto.products[i].price = prod.price;
+            subtotal += prod.price * createSaleDto.products[i].quantity;
         }
         // TODO: Calculate discount
 
@@ -42,6 +49,9 @@ export class SalesService {
     }
 
     async cancelSale(id: string, shop: Shop) {
+        const isValid = mongoose.Types.ObjectId.isValid(id);
+        if (!isValid) throw new HttpException('Invalid ID', 400);
+
         const sale = await this.saleModel.findOne({ _id: id, shop: shop._id });
         if (!sale) throw new HttpException('Sale not found', 404);
         if (sale.status !== 'pending') throw new HttpException('Sale status must be pending', 500);
@@ -50,6 +60,9 @@ export class SalesService {
     }
 
     async paidSale(id: string, shop: Shop) {
+        const isValid = mongoose.Types.ObjectId.isValid(id);
+        if (!isValid) throw new HttpException('Invalid ID', 400);
+        
         const sale = await this.saleModel.findOne({ _id: id, shop: shop._id });
         if (!sale) throw new HttpException('Sale not found', 404);
         if (sale.status !== 'pending') throw new HttpException('Sale status must be pending', 500);

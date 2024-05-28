@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import mongoose from "mongoose"
 import { Shop } from "./Shop.schema"
-import { ProductInterface } from "../sales/dto/CreateSale.dto"
+import { Product } from "../sales/dto/CreateSale.dto"
 
 @Schema({ timestamps: true })
 export class Sale {
-    @Prop({ type: [ProductInterface], required: true })
-    products: Array<ProductInterface>
+    @Prop({ type: [Product], required: true })
+    products: Array<Product>
 
     @Prop({ required: true })
     status: string

@@ -16,6 +16,9 @@ export class ProductsService {
     ) {}
     
     async createProduct(createProductDto: CreateProductDto, shop: Shop, image: Express.Multer.File) {
+        const product = await this.getProductByCode(createProductDto.code, shop);
+        if (product) throw new HttpException(`Product with code ${createProductDto.code} already exists`, 400);
+        
         let url = ''
         if (image) url = await this.r2Service.uploadFile(image.buffer, image.mimetype);
 

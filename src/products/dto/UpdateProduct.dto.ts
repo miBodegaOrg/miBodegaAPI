@@ -1,5 +1,5 @@
 import { Transform, Type } from "class-transformer";
-import { IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsInt, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
 export class UpdateProductDto {
     @IsOptional()
@@ -20,6 +20,7 @@ export class UpdateProductDto {
     @IsOptional()
     @Transform(({ value }) => Number(value))
     @Min(0)
+    @IsInt()
     @Type(() => Number)
     stock: number;
 

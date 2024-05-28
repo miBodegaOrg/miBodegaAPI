@@ -1,6 +1,7 @@
-import { IsArray, IsNotEmpty, IsNumber, IsString, Min } from "class-validator";
+import { Type } from "class-transformer";
+import { IsArray, IsEmpty, IsInt, IsNotEmpty, IsNumber, IsString, Min, ValidateNested } from "class-validator";
 
-export class ProductInterface {
+export class Product {
     @IsString()
     @IsNotEmpty()
     code: string;
@@ -8,11 +9,20 @@ export class ProductInterface {
     @IsNumber()
     @IsNotEmpty()
     @Min(1)
+    @IsInt()
     quantity: number;
+
+    @IsEmpty()
+    name: string;
+
+    @IsEmpty()
+    price: number;
 }
 
 export class CreateSaleDto {
     @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => Product)
     @IsNotEmpty()
-    products: ProductInterface[];
+    products: Product[]
 }
