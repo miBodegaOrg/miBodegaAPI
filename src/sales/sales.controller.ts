@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SalesService } from './sales.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -26,5 +26,17 @@ export class SalesController {
     @UseGuards(AuthGuard())
     async paidSale(@Req() req, @Param('id') id: string) {
         return this.salesService.paidSale(id, req.user);
+    }
+
+    @Get()
+    @UseGuards(AuthGuard())
+    async getSales(@Req() req) {
+        return this.salesService.getSales(req.user);
+    }
+
+    @Get(':id')
+    @UseGuards(AuthGuard())
+    async getSaleById(@Req() req, @Param('id') id: string) {
+        return this.salesService.getSaleById(id, req.user);
     }
 }

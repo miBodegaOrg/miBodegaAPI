@@ -13,6 +13,19 @@ export class SalesService {
         private productService: ProductsService
     ) {}
 
+    getSales(shop: Shop) {
+        return this.saleModel.find({ shop: shop._id });
+    }
+
+    async getSaleById(id: string, shop: Shop) {
+        const isValid = mongoose.Types.ObjectId.isValid(id);
+        if (!isValid) throw new HttpException('Invalid ID', 400);
+
+        const sale = await this.saleModel.findOne({ _id: id, shop: shop._id });
+        if (!sale) throw new HttpException('Sale not found', 404);
+        return sale
+    }
+
     async createSale(createSaleDto: CreateSaleDto, shop: Shop) {
         const productCodes = createSaleDto.products.map(product => product.code);
         const uniqueCodes = new Set(productCodes);
