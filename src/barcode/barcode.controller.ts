@@ -1,7 +1,10 @@
 import { Controller, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { BarcodeService } from './barcode.service';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Barcode')
+@ApiBearerAuth()
 @Controller('api/v1/barcode')
 export class BarcodeController {
     constructor(private barcodeService: BarcodeService) {}

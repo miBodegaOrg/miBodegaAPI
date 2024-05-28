@@ -8,6 +8,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   
   const config = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('miBodega API')
     .setDescription('endpoints for miBodega application')
     .setVersion('1.0')
