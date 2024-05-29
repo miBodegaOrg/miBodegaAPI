@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { PaginateModel } from 'mongoose';
 import { Sale } from 'src/schemas/Sales.schema';
 import { CreateSaleDto } from './dto/CreateSale.dto';
 import { Shop } from 'src/schemas/Shop.schema';
@@ -9,12 +9,12 @@ import { ProductsService } from 'src/products/products.service';
 @Injectable()
 export class SalesService {
     constructor(
-        @InjectModel(Sale.name) private saleModel: Model<Sale>,
+        @InjectModel(Sale.name) private saleModel: PaginateModel<Sale>,
         private productService: ProductsService
     ) {}
 
-    getSales(shop: Shop) {
-        return this.saleModel.find({ shop: shop._id });
+    getAllSales(shop: Shop, page: number, limit: number) {
+        return this.saleModel.paginate({ shop: shop._id }, { page, limit });
     }
 
     async getSaleById(id: string, shop: Shop) {

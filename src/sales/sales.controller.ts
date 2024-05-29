@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SalesService } from './sales.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -30,8 +30,8 @@ export class SalesController {
 
     @Get()
     @UseGuards(AuthGuard())
-    async getSales(@Req() req) {
-        return this.salesService.getSales(req.user);
+    async getSales(@Req() req, @Query('page') page: number, @Query('limit') limit: number) {
+        return this.salesService.getAllSales(req.user, page, limit);
     }
 
     @Get(':id')

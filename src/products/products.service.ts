@@ -85,6 +85,9 @@ export class ProductsService {
         const product = await this.getProductByCode(code, shop);
         if (!product) throw new HttpException('Product not found', 404);
 
-        return this.productModel.findOneAndUpdate({ code, shop: shop._id }, { stock: product.stock - quantity });
+        let stock = product.stock - quantity;
+        if (stock < 0) stock = 0
+
+        return this.productModel.findOneAndUpdate({ code, shop: shop._id }, { stock }, { new: true });
     }
 }
