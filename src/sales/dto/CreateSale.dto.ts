@@ -1,7 +1,7 @@
 import { Type } from "class-transformer";
 import { IsArray, IsEmpty, IsInt, IsNotEmpty, IsNumber, IsString, Min, ValidateNested } from "class-validator";
 
-export class Product {
+export class ProductItem {
     @IsString()
     @IsNotEmpty()
     code: string;
@@ -22,7 +22,7 @@ export class Product {
 export class CreateSaleDto {
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => Product)
+    @Type(() => ProductItem)
     @IsNotEmpty()
-    products: Product[]
+    products: ProductItem[]
 }

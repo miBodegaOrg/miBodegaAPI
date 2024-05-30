@@ -1,12 +1,13 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import mongoose from "mongoose"
 import { Shop } from "./Shop.schema"
-import { Product } from "../sales/dto/CreateSale.dto"
+import { ProductItem } from "../sales/dto/CreateSale.dto"
+import * as mongoosePaginate from 'mongoose-paginate-v2';
 
 @Schema({ timestamps: true })
 export class Sale {
-    @Prop({ type: [Product], required: true })
-    products: Array<Product>
+    @Prop({ type: [ProductItem], required: true })
+    products: Array<ProductItem>
 
     @Prop({ required: true })
     status: string
@@ -28,3 +29,5 @@ export class Sale {
 }
 
 export const SaleSchema = SchemaFactory.createForClass(Sale)
+
+SaleSchema.plugin(mongoosePaginate)
