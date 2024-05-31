@@ -44,16 +44,43 @@ export class ProductsService {
         return createdProduct.save();
     }
 
-    getAllProducts(shop: Shop, search: string, page: number, limit: number) {
+    async getAllProducts(filters) {
+        const query: any = { shop: filters.shop };
 
-        const searchQuery = search ? {
-            name: {
-                $regex: search,
+        if (filters.category.length > 0) {
+            const categoriesId = await this.categoryModel.find({ name: { $in: filters.category } });
+            query.category = { $in: categoriesId.map(category => category._id)};
+         }
+
+        if (filters.subcategory.length > 0) {
+            query.subcategory = { $in: filters.subcategory };
+            const subcategoriesId = await this.subcategoryModel.find({ name: { $in: filters.subcategory } });
+            query.subcategory = { $in: subcategoriesId.map(subcategory => subcategory._id)};
+        }
+
+        if (filters.search) {
+            query.name = {
+                $regex: filters.search,
                 $options: 'i'
-            }
-        } : {}
+            };
+        }
 
-        return this.productModel.paginate({ shop: shop._id, ...searchQuery }, { page, limit })
+        const options = {
+            page: filters.page,
+            limit: filters.limit,
+            populate: [
+                {
+                    path: 'category',
+                    select: 'name'
+                },
+                {
+                    path: 'subcategory',
+                    select: 'name'
+                }
+            ]
+        }
+
+        return this.productModel.paginate(query, options);
     }
 
     getProductByCode(code: string, shop: Shop) {

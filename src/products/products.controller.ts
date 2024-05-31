@@ -14,8 +14,24 @@ export class ProductsController {
 
     @Get()
     @UseGuards(AuthGuard())
-    getAllProducts(@Req() req, @Query('search') search: string, @Query('page') page: number, @Query('limit') limit: number) {
-        return this.productsService.getAllProducts(req.user, search, page, limit);
+    getAllProducts(
+        @Req() req,
+        @Query('search') search: string,
+        @Query('category') category: string,
+        @Query('subcategory') subcategory: string,
+        @Query('page') page: number,
+        @Query('limit') limit: number
+    ) {
+        const filters = {
+            shop: req.user,
+            search: search || '',
+            category: category ? category.split(',') : [],
+            subcategory: subcategory ? subcategory.split(',') : [],
+            page: page ? page : 1,
+            limit: limit ? limit : 20
+        }
+
+        return this.productsService.getAllProducts(filters);
     }
 
     @Get(':code')
