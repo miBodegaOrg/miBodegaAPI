@@ -25,7 +25,12 @@ export class UpdateProductDto {
     stock: number;
 
     @IsOptional()
-    category?: Array<string>;
+    @IsString()
+    category: string;
+
+    @IsOptional()
+    @IsString()
+    subcategory: string;
 
     @IsOptional()
     image?: File;

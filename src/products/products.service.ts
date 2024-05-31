@@ -7,17 +7,33 @@ import { UpdateProductDto } from './dto/UpdateProduct.dto';
 import { Shop } from 'src/schemas/Shop.schema';
 import { R2Service } from 'src/r2/r2.service';
 import { generateRandom11DigitNumber } from 'src/utils/generateRandom11DigitNumber';
+import { Category } from 'src/schemas/Category.schema';
+import { Subcategory } from 'src/schemas/Subcategory.schema';
+import { validateObjectId } from 'src/utils/validateObjectId';
 
 @Injectable()
 export class ProductsService {
     constructor(
         @InjectModel(Product.name) private productModel: PaginateModel<Product>,
+        @InjectModel('Category') private categoryModel: PaginateModel<Category>,
+        @InjectModel('Subcategory') private subcategoryModel: PaginateModel<Subcategory>,
         private readonly r2Service: R2Service
     ) {}
     
     async createProduct(createProductDto: CreateProductDto, shop: Shop, image: Express.Multer.File) {
+        validateObjectId(createProductDto.category);
+        validateObjectId(createProductDto.subcategory);
+
         const product = await this.getProductByCode(createProductDto.code, shop);
         if (product) throw new HttpException(`Product with code ${createProductDto.code} already exists`, 400);
+
+        const category = await this.categoryModel.findById(createProductDto.category);
+        if (!category) throw new HttpException('Category not found', 404);
+
+        const subcategory = await this.subcategoryModel.findById(createProductDto.subcategory);
+        if (!subcategory) throw new HttpException('Subcategory not found', 404);
+
+        if (subcategory.category.toString() !== category._id.toString()) throw new HttpException('Subcategory does not belong to category', 400);
         
         let url = ''
         if (image) url = await this.r2Service.uploadFile(image.buffer, image.mimetype);
@@ -45,8 +61,7 @@ export class ProductsService {
     }
 
     async deleteProduct(id: string, shop: Shop) {
-        const isValid = mongoose.Types.ObjectId.isValid(id);
-        if (!isValid) throw new HttpException('Invalid ID', 400);
+        validateObjectId(id);
 
         const product = await this.productModel.findOne({ _id: id, shop: shop._id });
         if (!product) throw new HttpException('Product not found', 404);
@@ -56,11 +71,27 @@ export class ProductsService {
     }
 
     async updateProduct(id: string, updateProductDto: UpdateProductDto, shop: Shop, image: Express.Multer.File) {
-        const isValid = mongoose.Types.ObjectId.isValid(id);
-        if (!isValid) throw new HttpException('Invalid ID', 400);
-
+        validateObjectId(id);
+    
         const product = await this.productModel.findOne({ _id: id, shop: shop._id });
         if (!product) throw new HttpException('Product not found', 404);
+
+        let category;
+        if (updateProductDto.category && product.category.toString() !== updateProductDto.category) {
+            validateObjectId(updateProductDto.category);
+            category = await this.categoryModel.findById(updateProductDto.category);
+            if (!category) throw new HttpException('Category not found', 404);
+
+            if (!updateProductDto.subcategory) throw new HttpException('Subcategory is required when update category', 400);
+        }
+
+        if (updateProductDto.subcategory) {
+            validateObjectId(updateProductDto.subcategory);
+            if (!category) category = await this.categoryModel.findById(product.category);
+            const subcategory = await this.subcategoryModel.findById(updateProductDto.subcategory);
+            if (!subcategory) throw new HttpException('Subcategory not found', 404);
+            if (subcategory.category.toString() !== category._id.toString()) throw new HttpException('Subcategory does not belong to category', 400);
+        }
 
         if (product.image_url !== '') await this.r2Service.deleteFile(product.image_url.split('/').pop());   
 
