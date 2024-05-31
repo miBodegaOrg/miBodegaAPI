@@ -24,8 +24,13 @@ export class CreateProductDto {
     @IsInt()
     stock: number;
 
-    @IsOptional()
-    category?: Array<string>;
+    @IsNotEmpty()
+    @IsString()
+    category: string;
+
+    @IsNotEmpty()
+    @IsString()
+    subcategory: string;
 
     @IsOptional()
     image?: File;

@@ -2,6 +2,8 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { Shop } from "./Shop.schema";
+import { Category } from "./Category.schema";
+import { Subcategory } from "./Subcategory.schema";
 
 @Schema({ timestamps: true })
 export class Product {
@@ -20,8 +22,11 @@ export class Product {
     @Prop({ default: '' })
     image_url: string;
 
-    @Prop({ type: [String], default: [] })
-    category: Array<string>;
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true })
+    category: Category;
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory', required: true })
+    subcategory: Subcategory;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true })
     shop: Shop;
