@@ -12,4 +12,8 @@ export class CategoriesService {
         const category = new this.categoryModel(createCategoryDto);
         return category.save();
     }
+
+    async getCategories() {
+        return this.categoryModel.find().populate('subcategories', 'name');
+    }
 }

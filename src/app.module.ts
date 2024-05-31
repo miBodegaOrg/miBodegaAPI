@@ -8,6 +8,7 @@ import { R2Service } from './r2/r2.service';
 import { R2Module } from './r2/r2.module';
 import { BarcodeModule } from './barcode/barcode.module';
 import { CategoriesModule } from './categories/categories.module';
+import { SubcategoriesModule } from './subcategories/subcategories.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CategoriesModule } from './categories/categories.module';
     R2Module,
     BarcodeModule,
     CategoriesModule,
+    SubcategoriesModule,
   ],
   controllers: [
   ],
