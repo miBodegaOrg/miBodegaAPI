@@ -9,19 +9,22 @@ import { CreateSubcategoryDto } from './dto/CreateSubcategory.dto';
 export class SubcategoriesService {
 
     constructor(
-        @InjectModel(Subcategory.name) private subcategorymodel: Model<Subcategory>,
-        @InjectModel(Category.name) private categorymodel: Model<Category>
+        @InjectModel(Subcategory.name) private subcategoryModel: Model<Subcategory>,
+        @InjectModel(Category.name) private categoryModel: Model<Category>
     ) {}
 
     async createSubcategory(createSubcategoryDto: CreateSubcategoryDto) {
         const isValid = mongoose.Types.ObjectId.isValid(createSubcategoryDto.category);
         if (!isValid) throw new HttpException('Invalid ID', 400);
 
-        const category = await this.categorymodel.findById(createSubcategoryDto.category);
+        const category = await this.categoryModel.findById(createSubcategoryDto.category);
         if (!category) throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
 
-        const subcategory = new this.subcategorymodel(createSubcategoryDto);
-        const createdSubcategory = await subcategory.save();
+        const subcategory = await this.subcategoryModel.findOne({ name: createSubcategoryDto.name });
+        if (subcategory) throw new HttpException('Subcategory with this name already exists', 400)
+
+        const createSubcategory = new this.subcategoryModel(createSubcategoryDto);
+        const createdSubcategory = await createSubcategory.save();
         await category.updateOne({ $push: { subcategories: createdSubcategory._id } });
         return createdSubcategory;
     }

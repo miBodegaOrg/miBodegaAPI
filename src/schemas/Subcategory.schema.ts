@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 
 @Schema({ timestamps: true })
 export class Subcategory {
-    @Prop({ required: true })
+    @Prop({ required: true, unique: true })
     name: string;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId , ref: 'Category', required: true })
