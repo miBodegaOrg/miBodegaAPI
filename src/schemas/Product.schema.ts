@@ -22,6 +22,9 @@ export class Product {
     @Prop({ default: '' })
     image_url: string;
 
+    @Prop({ required: true, default: false })
+    weight: boolean;
+
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true })
     category: Category;
 

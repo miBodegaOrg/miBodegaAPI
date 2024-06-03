@@ -48,6 +48,8 @@ export class SalesService {
         for (let i = 0; i < createSaleDto.products.length; i++) {
             let prod = await this.productService.getProductByCode(createSaleDto.products[i].code, shop);
             if (!prod) throw new HttpException(`Product ${createSaleDto.products[i].code} not found`, 404);
+            if (!prod.weight && !Number.isInteger(createSaleDto.products[i].quantity)) throw new HttpException('Quantity must be an integer if product is not weight type', 400);
+
             createSaleDto.products[i].name = prod.name;
             createSaleDto.products[i].price = prod.price;
             subtotal += prod.price * createSaleDto.products[i].quantity;
@@ -67,7 +69,6 @@ export class SalesService {
             total,
             discount
         });
-        
 
         const createdSale = new this.saleModel(data);
         return createdSale.save();
