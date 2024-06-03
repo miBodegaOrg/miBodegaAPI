@@ -13,8 +13,20 @@ export class SalesService {
         private productService: ProductsService
     ) {}
 
-    getAllSales(shop: Shop, page: number, limit: number) {
-        return this.saleModel.paginate({ shop: shop._id }, { page, limit });
+    getAllSales(shop: Shop, start_date: Date, end_date: Date, page: number, limit: number) {
+
+        let query = { shop: shop._id };
+
+        if (start_date && !end_date) {
+            query = Object.assign(query, { createdAt: { $gte: start_date } });
+        } else if (!start_date && end_date) {
+            query = Object.assign(query, { createdAt: { $lte: end_date } });
+        } else if (start_date && end_date) {
+            if (start_date > end_date) throw new HttpException('Start date must be less than end date', 400);
+            query = Object.assign(query, { createdAt: { $gte: start_date, $lte: end_date } });
+        }
+
+        return this.saleModel.paginate(query, { page, limit });
     }
 
     async getSaleById(id: string, shop: Shop) {
@@ -36,6 +48,8 @@ export class SalesService {
         for (let i = 0; i < createSaleDto.products.length; i++) {
             let prod = await this.productService.getProductByCode(createSaleDto.products[i].code, shop);
             if (!prod) throw new HttpException(`Product ${createSaleDto.products[i].code} not found`, 404);
+            if (!prod.weight && !Number.isInteger(createSaleDto.products[i].quantity)) throw new HttpException('Quantity must be an integer if product is not weight type', 400);
+
             createSaleDto.products[i].name = prod.name;
             createSaleDto.products[i].price = prod.price;
             subtotal += prod.price * createSaleDto.products[i].quantity;
@@ -55,7 +69,6 @@ export class SalesService {
             total,
             discount
         });
-        
 
         const createdSale = new this.saleModel(data);
         return createdSale.save();

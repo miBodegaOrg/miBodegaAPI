@@ -1,5 +1,5 @@
 import { Transform, Type } from "class-transformer";
-import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsBoolean, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
 export class CreateProductDto {
     @IsNotEmpty()
@@ -31,6 +31,10 @@ export class CreateProductDto {
     @IsNotEmpty()
     @IsString()
     subcategory: string;
+
+    @IsOptional()
+    @IsBoolean()
+    weight: boolean;
 
     @IsOptional()
     image?: File;

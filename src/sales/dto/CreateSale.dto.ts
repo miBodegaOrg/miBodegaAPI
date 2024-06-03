@@ -8,8 +8,7 @@ export class ProductItem {
 
     @IsNumber()
     @IsNotEmpty()
-    @Min(1)
-    @IsInt()
+    @Min(0.001)
     quantity: number;
 
     @IsEmpty()
