@@ -30,8 +30,14 @@ export class SalesController {
 
     @Get()
     @UseGuards(AuthGuard())
-    async getSales(@Req() req, @Query('page') page: number, @Query('limit') limit: number) {
-        return this.salesService.getAllSales(req.user, page, limit);
+    async getSales(
+        @Req() req,
+        @Query('page') page: number,
+        @Query('limit') limit: number,
+        @Query('start_date') start_date: Date,
+        @Query('end_date') end_date: Date
+    ) {
+        return this.salesService.getAllSales(req.user, start_date, end_date, page, limit);
     }
 
     @Get(':id')

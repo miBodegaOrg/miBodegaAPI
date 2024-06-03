@@ -13,8 +13,20 @@ export class SalesService {
         private productService: ProductsService
     ) {}
 
-    getAllSales(shop: Shop, page: number, limit: number) {
-        return this.saleModel.paginate({ shop: shop._id }, { page, limit });
+    getAllSales(shop: Shop, start_date: Date, end_date: Date, page: number, limit: number) {
+
+        let query = { shop: shop._id };
+
+        if (start_date && !end_date) {
+            query = Object.assign(query, { createdAt: { $gte: start_date } });
+        } else if (!start_date && end_date) {
+            query = Object.assign(query, { createdAt: { $lte: end_date } });
+        } else if (start_date && end_date) {
+            if (start_date > end_date) throw new HttpException('Start date must be less than end date', 400);
+            query = Object.assign(query, { createdAt: { $gte: start_date, $lte: end_date } });
+        }
+
+        return this.saleModel.paginate(query, { page, limit });
     }
 
     async getSaleById(id: string, shop: Shop) {
