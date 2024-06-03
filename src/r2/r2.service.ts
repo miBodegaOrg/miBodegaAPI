@@ -34,8 +34,7 @@ export class R2Service {
 
         return `https://pub-67cf39beb81c4c46a109e7c06577c1a4.r2.dev/${key}`;
     } catch (error) {
-      console.error(error);
-        throw new HttpException('Error uploading image', 500);
+      throw new HttpException('Error uploading image', 500);
     }
   }
 

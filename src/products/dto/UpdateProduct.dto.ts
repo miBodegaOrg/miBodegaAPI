@@ -1,5 +1,5 @@
 import { Transform, Type } from "class-transformer";
-import { IsInt, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsBoolean, IsInt, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
 export class UpdateProductDto {
     @IsOptional()
@@ -19,9 +19,8 @@ export class UpdateProductDto {
 
     @IsOptional()
     @Transform(({ value }) => Number(value))
-    @Min(0)
-    @IsInt()
-    @Type(() => Number)
+    @IsNumber()
+    @Min(0.001)
     stock: number;
 
     @IsOptional()
@@ -31,6 +30,16 @@ export class UpdateProductDto {
     @IsOptional()
     @IsString()
     subcategory: string;
+
+    @IsOptional()
+    @Transform(({ value }) => {
+        if (typeof value === 'string') {
+          return value.toLowerCase() === 'true';
+        }
+        return Boolean(value);
+      })
+    @IsBoolean()
+    weight: boolean;
 
     @IsOptional()
     image?: File;

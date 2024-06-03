@@ -38,6 +38,8 @@ export class ProductsService {
         let url = ''
         if (image) url = await this.r2Service.uploadFile(image.buffer, image.mimetype);
 
+        if (!createProductDto.weight && !Number.isInteger(createProductDto.stock)) throw new HttpException('Stock must be an integer if product is not weight type', 400);
+
         const data = Object.assign(createProductDto, { shop: shop._id, image_url: url});
 
         const createdProduct = new this.productModel(data);
@@ -103,6 +105,13 @@ export class ProductsService {
         const product = await this.productModel.findOne({ _id: id, shop: shop._id });
         if (!product) throw new HttpException('Product not found', 404);
 
+        if (updateProductDto.weight === false) {
+            if (updateProductDto.stock && !Number.isInteger(updateProductDto.stock)) throw new HttpException('Stock must be an integer if product is not weight type', 400);
+            if (!updateProductDto.stock && !Number.isInteger(product.stock)) throw new HttpException('Actual stock must be a integer when you update to non weight type', 400);
+        } else if (!updateProductDto.hasOwnProperty('weight') && updateProductDto.hasOwnProperty('stock')) {
+            if (!Number.isInteger(updateProductDto.stock) && product.weight === false) throw new HttpException('Stock must be an integer if product is not weight type', 400);
+        } 
+
         let category;
         if (updateProductDto.category && product.category.toString() !== updateProductDto.category) {
             validateObjectId(updateProductDto.category);
@@ -137,15 +146,5 @@ export class ProductsService {
         }
 
         return code;
-    }
-
-    async removeStock(code: string, quantity: number, shop: Shop) {
-        const product = await this.getProductByCode(code, shop);
-        if (!product) throw new HttpException('Product not found', 404);
-
-        let stock = product.stock - quantity;
-        if (stock < 0) stock = 0
-
-        return this.productModel.findOneAndUpdate({ code, shop: shop._id }, { stock }, { new: true });
     }
 }
