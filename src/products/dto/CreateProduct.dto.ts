@@ -19,9 +19,9 @@ export class CreateProductDto {
 
     @IsNotEmpty()
     @Transform(({ value }) => Number(value))
-    @Min(0)
+    @IsNumber()
+    @Min(0.001)
     @Type(() => Number)
-    @IsInt()
     stock: number;
 
     @IsNotEmpty()
@@ -33,6 +33,12 @@ export class CreateProductDto {
     subcategory: string;
 
     @IsOptional()
+    @Transform(({ value }) => {
+        if (typeof value === 'string') {
+          return value.toLowerCase() === 'true';
+        }
+        return Boolean(value);
+      })
     @IsBoolean()
     weight: boolean;
 

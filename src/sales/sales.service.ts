@@ -1,16 +1,17 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { PaginateModel } from 'mongoose';
+import mongoose, { Model, PaginateModel } from 'mongoose';
 import { Sale } from 'src/schemas/Sales.schema';
 import { CreateSaleDto } from './dto/CreateSale.dto';
 import { Shop } from 'src/schemas/Shop.schema';
 import { ProductsService } from 'src/products/products.service';
+import { Product } from 'src/schemas/Product.schema';
 
 @Injectable()
 export class SalesService {
     constructor(
         @InjectModel(Sale.name) private saleModel: PaginateModel<Sale>,
-        private productService: ProductsService
+        @InjectModel(Product.name) private productModel: Model<Product>,
     ) {}
 
     getAllSales(shop: Shop, start_date: Date, end_date: Date, page: number, limit: number) {
@@ -46,7 +47,7 @@ export class SalesService {
 
         let subtotal = 0;
         for (let i = 0; i < createSaleDto.products.length; i++) {
-            let prod = await this.productService.getProductByCode(createSaleDto.products[i].code, shop);
+            let prod = await this.productModel.findOne({ code: createSaleDto.products[i].code, shop: shop._id });
             if (!prod) throw new HttpException(`Product ${createSaleDto.products[i].code} not found`, 404);
             if (!prod.weight && !Number.isInteger(createSaleDto.products[i].quantity)) throw new HttpException('Quantity must be an integer if product is not weight type', 400);
 
@@ -93,8 +94,12 @@ export class SalesService {
         if (!sale) throw new HttpException('Sale not found', 404);
         if (sale.status !== 'pending') throw new HttpException('Sale status must be pending', 500);
 
-        for (const product of sale.products) {
-            await this.productService.removeStock(product.code, product.quantity, shop);
+        for (const productItem of sale.products) {
+            let product = await this.productModel.findOne({ code: productItem.code, shop: shop._id });
+            let stock = product.stock - productItem.quantity;
+            if (stock < 0) stock = 0
+
+            await this.productModel.findOneAndUpdate({ code: productItem.code, shop: shop._id }, { $inc: { sales: 1 }, stock }, { new: true });
         }
 
         return await this.saleModel.findOneAndUpdate({ _id: id, shop: shop._id }, { status: 'paid' }, { new: true });

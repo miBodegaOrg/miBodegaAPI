@@ -22,6 +22,9 @@ export class Product {
     @Prop({ default: '' })
     image_url: string;
 
+    @Prop({ default: 0 })
+    sales: number;
+
     @Prop({ required: true, default: false })
     weight: boolean;
 
