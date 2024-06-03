@@ -10,7 +10,7 @@ export class R2Service {
 
   constructor(private configService: ConfigService) {
     this.s3Client = new S3Client({
-      region: 'auto',
+      region: 'enam',
       endpoint: this.configService.get<string>('R2_ENDPOINT'),
       credentials: {
         accessKeyId: this.configService.get<string>('R2_ACCESS_KEY_ID'),
@@ -34,6 +34,7 @@ export class R2Service {
 
         return `https://pub-67cf39beb81c4c46a109e7c06577c1a4.r2.dev/${key}`;
     } catch (error) {
+      console.error(error);
         throw new HttpException('Error uploading image', 500);
     }
   }
