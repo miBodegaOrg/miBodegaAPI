@@ -21,17 +21,16 @@ export class ProductsService {
     ) {}
     
     async createProduct(createProductDto: CreateProductDto, shop: Shop, image: Express.Multer.File) {
-        validateObjectId(createProductDto.category);
-        validateObjectId(createProductDto.subcategory);
-
         const product = await this.getProductByCode(createProductDto.code, shop);
         if (product) throw new HttpException(`Product with code ${createProductDto.code} already exists`, 400);
 
-        const category = await this.categoryModel.findById(createProductDto.category);
+        const category = await this.categoryModel.findOne({ name: createProductDto.category });
         if (!category) throw new HttpException('Category not found', 404);
+        createProductDto.category = category._id.toString();
 
-        const subcategory = await this.subcategoryModel.findById(createProductDto.subcategory);
+        const subcategory = await this.subcategoryModel.findOne({ name: createProductDto.subcategory });
         if (!subcategory) throw new HttpException('Subcategory not found', 404);
+        createProductDto.subcategory = subcategory._id.toString();
 
         if (subcategory.category.toString() !== category._id.toString()) throw new HttpException('Subcategory does not belong to category', 400);
         
@@ -42,8 +41,13 @@ export class ProductsService {
 
         const data = Object.assign(createProductDto, { shop: shop._id, image_url: url});
 
-        const createdProduct = new this.productModel(data);
-        return createdProduct.save();
+        const createProduct = new this.productModel(data);
+        const createdProduct = await createProduct.save();
+
+        await category.updateOne({ $push: { products: createdProduct._id } });
+        await subcategory.updateOne({ $push: { products: createdProduct._id } });
+
+        return createdProduct;
     }
 
     async getAllProducts(filters) {
@@ -96,7 +100,10 @@ export class ProductsService {
         if (!product) throw new HttpException('Product not found', 404);
         if (product.image_url !== '') this.r2Service.deleteFile(product.image_url.split('/').pop())
         
-        return this.productModel.findOneAndDelete({ _id: id, shop: shop._id });
+        const deletedProduct = await this.productModel.findOneAndDelete({ _id: id, shop: shop._id });
+        await this.categoryModel.updateOne({ _id: product.category }, { $pull: { products: deletedProduct._id } });
+        await this.subcategoryModel.updateOne({ _id: product.subcategory }, { $pull: { products: deletedProduct._id } });
+        return deletedProduct;
     }
 
     async updateProduct(id: string, updateProductDto: UpdateProductDto, shop: Shop, image: Express.Multer.File) {
@@ -114,19 +121,22 @@ export class ProductsService {
 
         let category;
         if (updateProductDto.category && product.category.toString() !== updateProductDto.category) {
-            validateObjectId(updateProductDto.category);
-            category = await this.categoryModel.findById(updateProductDto.category);
+            category = await this.categoryModel.findOne({ name: updateProductDto.category });
             if (!category) throw new HttpException('Category not found', 404);
 
             if (!updateProductDto.subcategory) throw new HttpException('Subcategory is required when update category', 400);
+            updateProductDto.category = category._id.toString();
         }
 
         if (updateProductDto.subcategory) {
-            validateObjectId(updateProductDto.subcategory);
-            if (!category) category = await this.categoryModel.findById(product.category);
-            const subcategory = await this.subcategoryModel.findById(updateProductDto.subcategory);
+            if (!category) {
+                category = await this.categoryModel.findOne({ name: product.category });
+                updateProductDto.category = category._id.toString();
+            } 
+            const subcategory = await this.subcategoryModel.findOne({ name: updateProductDto.subcategory });
             if (!subcategory) throw new HttpException('Subcategory not found', 404);
             if (subcategory.category.toString() !== category._id.toString()) throw new HttpException('Subcategory does not belong to category', 400);
+            updateProductDto.subcategory = subcategory._id.toString();
         }
 
         if (product.image_url !== '') await this.r2Service.deleteFile(product.image_url.split('/').pop());   

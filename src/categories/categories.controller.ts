@@ -18,4 +18,9 @@ export class CategoriesController {
         return this.categoriesService.getCategories();
     }
 
+    @Get("with-products")
+    getCategoryWithProducts() {
+        return this.categoriesService.getCategoriesWithProducts();
+    }
+
 }

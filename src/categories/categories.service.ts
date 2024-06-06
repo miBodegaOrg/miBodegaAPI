@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Category } from 'src/schemas/Category.schema';
 import { CreateCategoryDto } from './dto/CreateCategory.dto';
+import { Product } from 'src/schemas/Product.schema';
 
 @Injectable()
 export class CategoriesService {
@@ -18,5 +19,41 @@ export class CategoriesService {
 
     async getCategories() {
         return this.categoryModel.find().populate('subcategories', 'name');
+    }
+
+    async getCategoriesWithProducts() {
+        return this.categoryModel.aggregate([
+            {
+              $match: {
+                  products: { $ne: [] }
+                }
+            },
+            {
+              $unwind: "$subcategories"
+            },
+            {
+              $lookup: {
+                from: "subcategories",
+                localField: "subcategories",
+                foreignField: "_id",
+                as: "subcategory"
+              }
+            },
+            {
+              $unwind: "$subcategory"
+            },
+            {
+              $match: {
+                "subcategory.products": { $ne: [] }
+              }
+            },
+            {
+              $group: {
+                _id: "$_id",
+                name: { $first: "$name" },
+                subcategories: { $push: "$subcategory.name" }
+              }
+            }
+          ])
     }
 }
