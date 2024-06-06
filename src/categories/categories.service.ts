@@ -24,24 +24,36 @@ export class CategoriesService {
     async getCategoriesWithProducts() {
         return this.categoryModel.aggregate([
             {
-                $lookup: {
-                  from: "products",
-                  localField: "_id",
-                  foreignField: "category",
-                  as: "products"
-                }
-            },
-            {
-                $match: {
+              $match: {
                   products: { $ne: [] }
                 }
             },
             {
-                $project: {
-                  _id: 1,
-                  name: 1,
-                }
-            }   
-        ])
+              $unwind: "$subcategories"
+            },
+            {
+              $lookup: {
+                from: "subcategories",
+                localField: "subcategories",
+                foreignField: "_id",
+                as: "subcategory"
+              }
+            },
+            {
+              $unwind: "$subcategory"
+            },
+            {
+              $match: {
+                "subcategory.products": { $ne: [] }
+              }
+            },
+            {
+              $group: {
+                _id: "$_id",
+                name: { $first: "$name" },
+                subcategories: { $push: "$subcategory.name" }
+              }
+            }
+          ])
     }
 }
