@@ -15,8 +15,8 @@ import { validateObjectId } from 'src/utils/validateObjectId';
 export class ProductsService {
     constructor(
         @InjectModel(Product.name) private productModel: PaginateModel<Product>,
-        @InjectModel('Category') private categoryModel: PaginateModel<Category>,
-        @InjectModel('Subcategory') private subcategoryModel: PaginateModel<Subcategory>,
+        @InjectModel(Category.name) private categoryModel: PaginateModel<Category>,
+        @InjectModel(Subcategory.name) private subcategoryModel: PaginateModel<Subcategory>,
         private readonly r2Service: R2Service
     ) {}
     
