@@ -9,6 +9,7 @@ import { R2Module } from './r2/r2.module';
 import { BarcodeModule } from './barcode/barcode.module';
 import { CategoriesModule } from './categories/categories.module';
 import { SubcategoriesModule } from './subcategories/subcategories.module';
+import { ChatsModule } from './chats/chats.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SubcategoriesModule } from './subcategories/subcategories.module';
     BarcodeModule,
     CategoriesModule,
     SubcategoriesModule,
+    ChatsModule,
   ],
   controllers: [
   ],
