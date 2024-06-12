@@ -50,7 +50,7 @@ export class ProductsService {
         return createdProduct;
     }
 
-    async getAllProducts(filters) {
+    async getAllProducts(filters, sortBy, orderBy) {
         const query: any = { shop: filters.shop };
 
         if (filters.category.length > 0) {
@@ -72,6 +72,7 @@ export class ProductsService {
         }
 
         const options = {
+            sort: { [sortBy]: orderBy == 'ASC' ? 1 : -1 },
             page: filters.page,
             limit: filters.limit,
             populate: [
