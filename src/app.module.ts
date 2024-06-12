@@ -10,6 +10,7 @@ import { BarcodeModule } from './barcode/barcode.module';
 import { CategoriesModule } from './categories/categories.module';
 import { SubcategoriesModule } from './subcategories/subcategories.module';
 import { ChatsModule } from './chats/chats.module';
+import { DashboardsModule } from './dashboards/dashboards.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ChatsModule } from './chats/chats.module';
     CategoriesModule,
     SubcategoriesModule,
     ChatsModule,
+    DashboardsModule,
   ],
   controllers: [
   ],

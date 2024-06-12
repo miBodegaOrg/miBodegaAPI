@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, Param, Post, Put, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, DescriptionAndOptions, Get, HttpException, Param, Post, Put, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/CreateProduct.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -19,6 +19,8 @@ export class ProductsController {
         @Query('search') search: string,
         @Query('category') category: string,
         @Query('subcategory') subcategory: string,
+        @Query('sortBy') sortBy: string,
+        @Query('orderBy') orderBy: 'ASC' | 'DESC',
         @Query('page') page: number,
         @Query('limit') limit: number
     ) {
@@ -26,12 +28,12 @@ export class ProductsController {
             shop: req.user,
             search: search || '',
             category: category ? category.split(',') : [],
-            subcategory: subcategory ? subcategory.split(',') : [],
+            subcategory: subcategory ? subcategory.split(',') : [], 
             page: page ? page : 1,
             limit: limit ? limit : 20
         }
 
-        return this.productsService.getAllProducts(filters);
+        return this.productsService.getAllProducts(filters, sortBy, orderBy);
     }
 
     @Get(':code')
