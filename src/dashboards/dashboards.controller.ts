@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { DashboardsService } from './dashboards.service';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -10,5 +10,10 @@ export class DashboardsController {
     @Get('categories')
     getDashboardCategories() {
        return this.dashboardsService.getSalesByCategory();
+    }
+
+    @Get('sales')
+    getSalesDashboard(@Query('period') period: 'day' | 'week' | 'month' | 'year') {
+       return this.dashboardsService.getSalesDashboard(period);
     }
 }
