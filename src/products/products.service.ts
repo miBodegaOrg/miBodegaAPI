@@ -95,7 +95,7 @@ export class ProductsService {
     }
 
     async deleteProduct(id: string, shop: Shop) {
-        validateObjectId(id);
+        validateObjectId(id, 'product');
 
         const product = await this.productModel.findOne({ _id: id, shop: shop._id });
         if (!product) throw new HttpException('Product not found', 404);
@@ -108,7 +108,7 @@ export class ProductsService {
     }
 
     async updateProduct(id: string, updateProductDto: UpdateProductDto, shop: Shop, image: Express.Multer.File) {
-        validateObjectId(id);
+        validateObjectId(id, 'product');
     
         const product = await this.productModel.findOne({ _id: id, shop: shop._id });
         if (!product) throw new HttpException('Product not found', 404);
