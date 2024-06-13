@@ -11,6 +11,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { SubcategoriesModule } from './subcategories/subcategories.module';
 import { ChatsModule } from './chats/chats.module';
 import { DashboardsModule } from './dashboards/dashboards.module';
+import { SuppliersModule } from './suppliers/suppliers.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { DashboardsModule } from './dashboards/dashboards.module';
     SubcategoriesModule,
     ChatsModule,
     DashboardsModule,
+    SuppliersModule,
   ],
   controllers: [
   ],

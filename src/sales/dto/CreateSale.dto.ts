@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsArray, IsEmpty, IsInt, IsNotEmpty, IsNumber, IsString, Min, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsEmpty, IsNotEmpty, IsNumber, IsString, Min, ValidateNested } from "class-validator";
 
 export class ProductItem {
     @IsString()
@@ -22,6 +22,7 @@ export class CreateSaleDto {
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => ProductItem)
+    @ArrayNotEmpty()
     @IsNotEmpty()
     products: ProductItem[]
 }
