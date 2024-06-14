@@ -48,7 +48,7 @@ export class ChatsService {
     }
 
     async responseChat(id: string, messageChatDto: MessageChatDto, shop: Shop) {
-        validateObjectId(id);
+        validateObjectId(id, 'chat');
 
         const chat = await this.chatModel.findOne({ _id: id, shop: shop._id });
         if (!chat) throw new HttpException('Chat not found', 404);
@@ -76,7 +76,7 @@ export class ChatsService {
     }
 
     getChatById(id: string, shop: Shop) {
-        validateObjectId(id);
+        validateObjectId(id, 'chat');
         return this.chatModel.findOne({ _id: id, shop: shop._id });
     }
 
