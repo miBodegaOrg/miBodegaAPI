@@ -26,6 +26,8 @@ export class Sale {
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true })
     shop: Shop;
+
+    createdAt: Date
 }
 
 export const SaleSchema = SchemaFactory.createForClass(Sale)
