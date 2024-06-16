@@ -3,8 +3,10 @@ import { SuppliersService } from './suppliers.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateSupplierDto } from './dto/CreateSupplier.dto';
 import { UpdateSupplierDto } from './dto/UpdateSupplier.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('api/v1/suppliers')
+@ApiTags('Suppliers')
 export class SuppliersController {
     constructor(private suppliersService: SuppliersService) {}
 
