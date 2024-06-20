@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SalesService } from './sales.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateSaleDto } from './dto/CreateSale.dto';
+import { PermissionsGuard, Permissions } from 'src/auth/guards/permission.guard';
 
 @ApiTags('Sales')
 @ApiBearerAuth()
@@ -11,25 +12,29 @@ export class SalesController {
     constructor(private salesService: SalesService) {}
 
     @Post()
-    @UseGuards(AuthGuard())
+    @UseGuards(AuthGuard(), PermissionsGuard)
+    @Permissions('sales.create')
     async createSale(@Req() req, @Body() createSaleDto: CreateSaleDto) {
         return this.salesService.createSale(createSaleDto, req.user);
     }
 
     @Post('cancel/:id')
-    @UseGuards(AuthGuard())
+    @UseGuards(AuthGuard(), PermissionsGuard)
+    @Permissions('sales.create')
     async cancelSale(@Req() req, @Param('id') id: string) {
         return this.salesService.cancelSale(id, req.user);
     }
 
     @Post('paid/:id')
-    @UseGuards(AuthGuard())
+    @UseGuards(AuthGuard(), PermissionsGuard)
+    @Permissions('sales.create')
     async paidSale(@Req() req, @Param('id') id: string) {
         return this.salesService.paidSale(id, req.user);
     }
 
     @Get()
-    @UseGuards(AuthGuard())
+    @UseGuards(AuthGuard(), PermissionsGuard)
+    @Permissions('sales.read')
     async getSales(
         @Req() req,
         @Query('page') page: number,
@@ -41,7 +46,8 @@ export class SalesController {
     }
 
     @Get(':id')
-    @UseGuards(AuthGuard())
+    @UseGuards(AuthGuard(), PermissionsGuard)
+    @Permissions('sales.read')
     async getSaleById(@Req() req, @Param('id') id: string) {
         return this.salesService.getSaleById(id, req.user);
     }

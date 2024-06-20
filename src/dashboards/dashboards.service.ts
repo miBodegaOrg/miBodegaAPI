@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product } from 'src/schemas/Product.schema';
 import { Sale } from 'src/schemas/Sales.schema';
+import { Shop } from 'src/schemas/Shop.schema';
 
 @Injectable()
 export class DashboardsService {
@@ -12,8 +13,13 @@ export class DashboardsService {
         @InjectModel(Sale.name) private saleModel: Model<Sale>,
     ) {}
 
-    getSalesByCategory() {
+    getSalesByCategory(shop: Shop) {
         return this.productModel.aggregate([
+            {
+              "$match": {
+                "shop": shop._id
+              }
+            },
             {
               "$lookup": {
                 "from": "categories",
@@ -58,7 +64,7 @@ export class DashboardsService {
           ]);
     }
 
-    getSalesDashboard(period: "day" | "week" | "month" | "year") {
+    getSalesDashboard(shop: Shop, period: "day" | "week" | "month" | "year") {
 
         if (period !== "day" && period !== "week" && period !== "month" && period !== "year") throw new HttpException('Invalid period', 400);
 
@@ -75,7 +81,8 @@ export class DashboardsService {
                 "createdAt": {
                   "$gte": dateFilter[period].filter
                 },
-                "status": "paid"
+                "status": "paid",
+                "shop": shop._id
               }
             },
             {

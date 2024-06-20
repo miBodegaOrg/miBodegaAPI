@@ -13,6 +13,7 @@ import { ChatsModule } from './chats/chats.module';
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
 import { PurchasesModule } from './purchases/purchases.module';
+import { EmployeesModule } from './employees/employees.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { PurchasesModule } from './purchases/purchases.module';
     DashboardsModule,
     SuppliersModule,
     PurchasesModule,
+    EmployeesModule,
   ],
   controllers: [
   ],
