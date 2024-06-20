@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from "class-validator"
 
-export class SignInDto{
+export class SignInShopDto{
     @IsString()
     @IsNotEmpty()
     ruc: string

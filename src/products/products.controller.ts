@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, DescriptionAndOptions, Get, HttpException, Param, Post, Put, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, Param, Post, Put, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/CreateProduct.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { PermissionsGuard, Permissions } from 'src/auth/guards/permission.guard';
 
 @ApiTags('Products')
 @ApiBearerAuth()
@@ -45,14 +46,16 @@ export class ProductsController {
     }
 
     @Post('generate-code')
-    @UseGuards(AuthGuard())
+    @UseGuards(AuthGuard(), PermissionsGuard)
+    @Permissions('products.create')
     async generateProductCode(@Req() req) {
         const code = await this.productsService.generateProductCode(req.user);
         return { code };
     }
 
     @Post()
-    @UseGuards(AuthGuard())
+    @Permissions('products.create')
+    @UseGuards(AuthGuard(), PermissionsGuard)
     @UseInterceptors(FileInterceptor('image'))
     createProduct(
         @Body() createProductDto: CreateProductDto,
@@ -63,7 +66,8 @@ export class ProductsController {
     }
 
     @Put(':id')
-    @UseGuards(AuthGuard())
+    @UseGuards(AuthGuard(), PermissionsGuard)
+    @Permissions('products.update')
     @UseInterceptors(FileInterceptor('image'))
     async updateProduct(
         @Param('id') id: string,
@@ -77,7 +81,8 @@ export class ProductsController {
     }
 
     @Delete(':id')
-    @UseGuards(AuthGuard())
+    @UseGuards(AuthGuard(), PermissionsGuard)
+    @Permissions('products.delete')
     daleteProduct(@Param('id') id: string, @Req() req) {
         return this.productsService.deleteProduct(id, req.user);
     }

@@ -7,6 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
+import { Employee, EmployeeSchema } from 'src/schemas/Employee.schema';
 
 @Module({
   imports: [
@@ -17,7 +18,10 @@ import { JwtStrategy } from './jwt.strategy';
         secret: configService.get<string>('JWT_SECRET'),
       })
     }),
-    MongooseModule.forFeature([{ name: Shop.name, schema: ShopSchema }]),
+    MongooseModule.forFeature([
+      { name: Shop.name, schema: ShopSchema },
+      { name: Employee.name, schema: EmployeeSchema },
+    ]),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
