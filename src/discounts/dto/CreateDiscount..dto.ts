@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, IsBoolean, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsBoolean, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
 export class CreateDiscountDto {
 
@@ -20,6 +20,7 @@ export class CreateDiscountDto {
 
     @IsNumber()
     @IsNotEmpty()
+    @Min(0.001)
     value: number
 
     @IsBoolean()

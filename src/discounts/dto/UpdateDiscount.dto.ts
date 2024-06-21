@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, IsBoolean, IsDate, IsNumber, IsOptional, IsString } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsBoolean, IsDate, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
 export class UpdateDiscountDto {
     
@@ -20,6 +20,7 @@ export class UpdateDiscountDto {
 
     @IsNumber()
     @IsOptional()
+    @Min(0.001)
     value: number
 
     @IsBoolean()

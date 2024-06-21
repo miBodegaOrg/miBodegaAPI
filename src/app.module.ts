@@ -15,6 +15,8 @@ import { SuppliersModule } from './suppliers/suppliers.module';
 import { PurchasesModule } from './purchases/purchases.module';
 import { EmployeesModule } from './employees/employees.module';
 import { DiscountsModule } from './discounts/discounts.module';
+import { PromotionsController } from './promotions/promotions.controller';
+import { PromotionsModule } from './promotions/promotions.module';
 
 @Module({
   imports: [
@@ -38,9 +40,10 @@ import { DiscountsModule } from './discounts/discounts.module';
     PurchasesModule,
     EmployeesModule,
     DiscountsModule,
+    PromotionsModule,
   ],
   controllers: [
-  ],
+  PromotionsController],
   providers: [R2Service],
 })
 export class AppModule {}

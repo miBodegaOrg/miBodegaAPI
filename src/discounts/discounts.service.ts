@@ -20,6 +20,7 @@ export class DiscountsService {
     }
 
     async getDiscountById(id: string, shop: Shop) {
+        validateObjectId(id, 'Discount');
         return this.discountModel.findOne({ _id: id, shop: shop._id });
     };
 
@@ -45,6 +46,7 @@ export class DiscountsService {
     }
 
     async updateDiscount(id: string, updateDiscountDto: UpdateDiscountDto, shop: Shop) {
+        validateObjectId(id, 'Discount');
         const discount = await this.discountModel.findOne({ _id: id, shop: shop._id });
         if (!discount) throw new HttpException('Discount not found', 404);
 
@@ -82,6 +84,8 @@ export class DiscountsService {
     }
 
     async deleteDiscount(id: string, shop: Shop) {
+        validateObjectId(id, 'Discount');
+
         const discount = await this.discountModel.findOne({ _id: id, shop: shop._id });
         if (!discount) throw new HttpException('Discount not found', 404);
 
