@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, IsBoolean, IsDate, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsBoolean, IsDate, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
 
 export class UpdateDiscountDto {
     
@@ -14,14 +14,11 @@ export class UpdateDiscountDto {
     @IsOptional()
     endDate: Date
 
-    @IsBoolean()
-    @IsOptional()
-    percentage: boolean
-
+    @Max(100)
+    @Min(0)
     @IsNumber()
     @IsOptional()
-    @Min(0.001)
-    value: number
+    percentage: number
 
     @IsBoolean()
     @IsOptional()

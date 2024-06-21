@@ -28,8 +28,6 @@ export class DiscountsService {
         const discount = await this.discountModel.findOne({ name: createDiscountDto.name, shop: shop._id });
         if (discount) throw new HttpException('Discount name already exists', 400);
 
-        if (createDiscountDto.percentage && createDiscountDto.value > 100) throw new HttpException('Percentage value must be less than 100', 400)
-
         for (let i = 0; i < createDiscountDto.products.length; i++) {
             validateObjectId(createDiscountDto.products[i], 'Product');
 
@@ -53,14 +51,6 @@ export class DiscountsService {
         if (updateDiscountDto.hasOwnProperty("name") && updateDiscountDto.name !== discount.name) {
             const discountUpdated = await this.discountModel.findOne({ name: updateDiscountDto.name, shop: shop._id });
             if (discountUpdated) throw new HttpException('Discount name already exists', 400);
-        }
-
-        if (updateDiscountDto.hasOwnProperty("percentage") && !updateDiscountDto.hasOwnProperty("value")) {
-            if (discount.value > 100 && updateDiscountDto.percentage) throw new HttpException('Percentage value must be less than 100', 400);
-        } else if (!updateDiscountDto.hasOwnProperty("percentage") && updateDiscountDto.hasOwnProperty("value")) {
-            if (discount.percentage && updateDiscountDto.value > 100) throw new HttpException('Percentage value must be less than 100', 400);
-        } else if (updateDiscountDto.hasOwnProperty("percentage") && updateDiscountDto.hasOwnProperty("value")) {
-            if (updateDiscountDto.percentage && updateDiscountDto.value > 100) throw new HttpException('Percentage value must be less than 100', 400);
         }
 
         if (updateDiscountDto.hasOwnProperty("products")) {

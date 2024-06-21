@@ -15,10 +15,7 @@ export class Discount {
     endDate: Date
 
     @Prop({ required: true })
-    percentage: boolean
-
-    @Prop({ required: true })
-    value: number
+    percentage: number
 
     @Prop({ required: true })
     active: boolean
