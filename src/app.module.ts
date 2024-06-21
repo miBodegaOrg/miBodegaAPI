@@ -42,8 +42,7 @@ import { PromotionsModule } from './promotions/promotions.module';
     DiscountsModule,
     PromotionsModule,
   ],
-  controllers: [
-  PromotionsController],
+  controllers: [],
   providers: [R2Service],
 })
 export class AppModule {}
