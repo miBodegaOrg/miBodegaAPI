@@ -6,11 +6,9 @@ export class UpdateDiscountDto {
     @IsOptional()
     name: string;
 
-    @IsDate()
     @IsOptional()
     startDate: Date
     
-    @IsDate()
     @IsOptional()
     endDate: Date
 
