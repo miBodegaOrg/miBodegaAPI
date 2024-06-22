@@ -6,11 +6,9 @@ export class CreatePromotionDto {
     name: string;
 
     @IsNotEmpty()
-    @IsDate()
     startDate: Date;
 
     @IsNotEmpty()
-    @IsDate()
     endDate: Date;
 
     @IsNotEmpty()
