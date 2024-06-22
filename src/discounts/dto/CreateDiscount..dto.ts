@@ -6,11 +6,9 @@ export class CreateDiscountDto {
     @IsNotEmpty()
     name: string;
 
-    @IsDate()
     @IsOptional()
     startDate: Date
     
-    @IsDate()
     @IsOptional()
     endDate: Date
 
