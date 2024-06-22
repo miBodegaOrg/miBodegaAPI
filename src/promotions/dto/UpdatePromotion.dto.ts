@@ -6,11 +6,9 @@ export class UpdatePromotionDto {
     name: string;
 
     @IsOptional()
-    @IsDate()
     startDate: Date;
 
     @IsOptional()
-    @IsDate()
     endDate: Date;
 
     @IsOptional()
