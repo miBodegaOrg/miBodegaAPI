@@ -5,9 +5,8 @@ import { Shop } from 'src/schemas/Shop.schema';
 import * as bcrypt from 'bcryptjs'
 import { JwtService } from '@nestjs/jwt';
 import { SignUpDto } from './dto/SignUp.dto';
-import { SignInShopDto } from './dto/SignInShop.dto';
+import { SignInDto } from './dto/SignIn.dto';
 import { Employee } from 'src/schemas/Employee.schema';
-import { SignInEmployeeDto } from './dto/SignInEmployee.dto';
 import e from 'express';
 import { permission } from 'process';
 
@@ -27,28 +26,38 @@ export class AuthService {
         return { "msg": "Shop created successfully" }
     }
 
-    async signInShop(signInShopDto: SignInShopDto) {
-        const { ruc, password } = signInShopDto
+    async signIn(signInDto: SignInDto) {
+        const { username, password } = signInDto
 
-        const shop = await this.shopModel.findOne({ ruc })
-        if (!shop) throw new UnauthorizedException('Invalid user or password')
-        
-        const isPasswordMatched = await bcrypt.compare(password, shop.password)
-        if (!isPasswordMatched) throw new UnauthorizedException('Invalid ruc or password')
+        const shop = await this.shopModel.findOne({ ruc: username })
+        if (shop) {
+            const isPasswordMatched = await bcrypt.compare(password, shop.password)
+            if (!isPasswordMatched) throw new UnauthorizedException('Invalid ruc or password')
+            
+            const response = {
+                name: shop.name,
+                username: shop.ruc,
+                phone: shop.phone,
+                type: "shop"
+            }
 
-        return { ...shop.toObject(), token: this.jwtService.sign({ id: shop._id, role: 'shop'})}
-    }
+            return { ...response, token: this.jwtService.sign({ id: shop._id, role: 'shop'})}
+        } else {
+            const employee = await this.employeeModel.findOne({ dni: signInDto.username })
+            if (!employee) throw new UnauthorizedException('Invalid username or password')
 
-    async signInEmployee(signInEmployeeDto: SignInEmployeeDto) {
-        const { email, password } = signInEmployeeDto
+            const isPasswordMatched = await bcrypt.compare(password, employee.password)
+            if (!isPasswordMatched) throw new UnauthorizedException('Invalid user or password')
+            
+            const response = {
+                name: employee.name,
+                username: employee.dni,
+                phone: employee.phone,                   
+                type: "employee"
+            }
 
-        const employee = await this.employeeModel.findOne({ email })
-        if (!employee) throw new UnauthorizedException('Invalid email or password')
-
-        const isPasswordMatched = await bcrypt.compare(password, employee.password)
-        if (!isPasswordMatched) throw new UnauthorizedException('Invalid user or password')
-
-        return { ...employee.toObject(), token: this.jwtService.sign({ id: employee._id, role: 'employee'})}
+            return { ...response, token: this.jwtService.sign({ id: employee._id, role: 'employee'})}        
+        }
     }
 
     async validate(payload) {

@@ -10,10 +10,10 @@ export class Employee {
     @Prop()
     lastname: string
 
-    @Prop({ required: true, unique: true })
+    @Prop()
     email: string
 
-    @Prop()
+    @Prop({ required: true, unique: true})
     dni: string
 
     @Prop()
@@ -26,7 +26,7 @@ export class Employee {
     shop: Shop
 
     @Prop({ default: [] })
-    permissions: [string]
+    permissions: string[]
 }
 
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);

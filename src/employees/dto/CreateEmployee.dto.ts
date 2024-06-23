@@ -10,15 +10,15 @@ export class CreateEmployeeDto {
     lastname: string;
 
     @IsEmail()
-    @IsNotEmpty()
+    @IsOptional()
     email: string;
 
     @IsString()
-    @IsOptional()
+    @IsNotEmpty()
     dni: string;
 
     @IsString()
-    @IsOptional()
+    @IsNotEmpty()
     phone: string;
 
     @IsString()
