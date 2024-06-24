@@ -16,7 +16,12 @@ export class Supplier {
     ruc: string;
 
     @Prop({ type: [ProductItem], default: [] })
-    products: Array<ProductItem>
+    products: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+        cost: number,
+        code: string
+    }]
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true })
     shop: Shop;

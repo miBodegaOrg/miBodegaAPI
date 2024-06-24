@@ -41,7 +41,7 @@ export class PurchasesService {
 
             if (supplier.products.findIndex(p => p.code === product.code) === -1) throw new HttpException(`Product with code ${product.code} not found in supplier`, 404);
 
-            let price = supplier.products.find(p => p.code === product.code).price;
+            let price = supplier.products.find(p => p.code === product.code).cost;
             subtotal += price * createPurchaseDto.products[i].quantity;
         }
 

@@ -8,7 +8,7 @@ export class SupplierProduct {
 
     @IsNumber()
     @IsNotEmpty()
-    price: number;
+    cost: number;
 }
 
 export class UpdateSupplierDto {
