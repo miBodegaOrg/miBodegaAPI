@@ -10,6 +10,10 @@ import { validateObjectId } from 'src/utils/validateObjectId';
 import { Product } from 'src/schemas/Product.schema';
 import { Sale } from 'src/schemas/Sales.schema';
 import * as fs from 'fs';
+import { Promotion } from 'src/schemas/Promotion.schema';
+import { Discount } from 'src/schemas/Discount.schema';
+import { Purchase } from 'src/schemas/Purchase.schema';
+import { Supplier } from 'src/schemas/Supplier.schema';
 
 @Injectable()
 export class ChatsService {
@@ -19,7 +23,11 @@ export class ChatsService {
         private configService: ConfigService,
         @InjectModel(Chat.name) private chatModel: Model<Chat>,
         @InjectModel(Product.name) private productModel: Model<Product>,
-        @InjectModel(Sale.name) private saleModel: Model<Sale>
+        @InjectModel(Sale.name) private saleModel: Model<Sale>,
+        @InjectModel(Promotion.name) private promotionModel: Model<Promotion>,
+        @InjectModel(Discount.name) private discountModel: Model<Discount>,
+        @InjectModel(Purchase.name) private puarchaseModel: Model<Purchase>,
+        @InjectModel(Supplier.name) private supplierModel: Model<Supplier>
     ) {
         this.openai = new OpenAI({
             organization: "org-5W2Aph8TnYoX2SHq3qhTp130",
@@ -31,33 +39,74 @@ export class ChatsService {
     async createChat(messageChatDto: MessageChatDto, shop: Shop) {
 
         const productsQuery = await this.productModel.find({ shop: shop._id }).populate('category', 'name');
+        const salesQuery = await this.saleModel.find({ shop: shop._id, createdAt: { $gt: new Date().setMonth(new Date().getMonth() - 1)}, status: 'paid'})
+        const promotionsQuery = await this.promotionModel.find({ shop: shop._id })
+        const discountsQuery = await this.discountModel.find({ shop: shop._id })
+        const purchasesQuery = await this.puarchaseModel.find({ shop: shop._id })
+        const suppliersQuery = await this.supplierModel.find({ shop: shop._id })
 
-        const products = productsQuery.map(product => ({
+        let files = []
+        
+        if (productsQuery.length > 0) {
+          const products = productsQuery.map(product => ({
             name: product.name,
             price: product.price,
             category: product.category.name,
             stock: product.stock,
             sales: product.sales
-        }));
+          }));
 
-        const salesQuery = await this.saleModel.find({ shop: shop._id, createdAt: { $gt: new Date().setMonth(new Date().getMonth() - 1)}, status: 'paid'})
+          const jsonProducts = JSON.stringify(products, null, 2);
+          fs.writeFileSync('products.json', jsonProducts)
 
-        const sales = salesQuery.map(sale => ({
+          files.push("products.json")
+        }
+
+        if (salesQuery.length > 0) {
+          const sales = salesQuery.map(sale => ({
             products: sale.products,
             total: sale.total,
             subtotal: sale.subtotal,
             discount: sale.discount,
             igv: sale.igv,
             createdAt: sale.createdAt
-        }));
+          }));
 
-        const jsonProducts = JSON.stringify(products, null, 2);
-        fs.writeFileSync('products.json', jsonProducts)
+          files.push("sales.json")
 
-        const jsonSales = JSON.stringify(sales, null, 2);
-        fs.writeFileSync('sales.json', jsonSales)
+          const jsonSales = JSON.stringify(sales, null, 2);
+          fs.writeFileSync('sales.json', jsonSales)
+        }
+        
+        if (discountsQuery.length > 0) {
+          files.push("discounts.json")
 
-        const fileStreams = ["products.json", "sales.json"].map((path) =>
+          const jsonDiscounts = JSON.stringify(discountsQuery, null, 2);
+          fs.writeFileSync('discounts.json', jsonDiscounts)
+        }
+
+        if (promotionsQuery.length > 0) {
+          files.push("promotions.json")
+
+          const jsonPromotions = JSON.stringify(promotionsQuery, null, 2);
+          fs.writeFileSync('promotions.json', jsonPromotions)
+        }
+
+        if (purchasesQuery.length > 0) {
+          files.push("purchases.json")
+
+          const jsonPurchases = JSON.stringify(purchasesQuery, null, 2);
+          fs.writeFileSync('purchases.json', jsonPurchases)
+        }
+
+        if (suppliersQuery.length > 0) {
+          files.push("suppliers.json")
+
+          const jsonSuppliers = JSON.stringify(suppliersQuery, null, 2);
+          fs.writeFileSync('suppliers.json', jsonSuppliers)
+        }
+
+        const fileStreams = files.map((path) =>
             fs.createReadStream(path),
         )
            
