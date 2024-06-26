@@ -16,6 +16,15 @@ export class ProductItem {
 
     @IsEmpty()
     price: number;
+
+    @IsEmpty()
+    discount: number;
+
+    @IsEmpty()
+    cost: number
+
+    @IsEmpty()
+    rentability: number;
 }
 
 export class CreateSaleDto {

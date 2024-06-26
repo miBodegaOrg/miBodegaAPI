@@ -102,4 +102,10 @@ export class DashboardsService {
             }
           ]);
     }
+
+    async getProductRentabilityDashboard(shop: Shop) {
+        const sales = await this.saleModel.find({ shop: shop._id, status: 'paid' });
+
+
+    } 
 }

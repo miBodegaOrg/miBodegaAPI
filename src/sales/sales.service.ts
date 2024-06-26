@@ -6,12 +6,16 @@ import { CreateSaleDto } from './dto/CreateSale.dto';
 import { Shop } from 'src/schemas/Shop.schema';
 import { ProductsService } from 'src/products/products.service';
 import { Product } from 'src/schemas/Product.schema';
+import { Discount } from 'src/schemas/Discount.schema';
+import { Promotion } from 'src/schemas/Promotion.schema';
 
 @Injectable()
 export class SalesService {
     constructor(
         @InjectModel(Sale.name) private saleModel: PaginateModel<Sale>,
         @InjectModel(Product.name) private productModel: Model<Product>,
+        @InjectModel(Discount.name) private discountModel: Model<any>,
+        @InjectModel(Promotion.name) private promotionModel: Model<any>,
     ) {}
 
     getAllSales(shop: Shop, start_date: Date, end_date: Date, page: number, limit: number) {
@@ -46,6 +50,7 @@ export class SalesService {
         if (uniqueCodes.size !== productCodes.length) throw new HttpException('Products code must be unique', 400);
 
         let subtotal = 0;
+        let discount = 0;
         for (let i = 0; i < createSaleDto.products.length; i++) {
             let prod = await this.productModel.findOne({ code: createSaleDto.products[i].code, shop: shop._id });
             if (!prod) throw new HttpException(`Product ${createSaleDto.products[i].code} not found`, 404);
@@ -53,14 +58,33 @@ export class SalesService {
 
             createSaleDto.products[i].name = prod.name;
             createSaleDto.products[i].price = prod.price;
+
+            if (prod.activePromo && prod.activePromo?.type === 'discount') {
+                const discountDoc = await this.discountModel.findOne({ _id: prod.activePromo.id, shop: shop._id });
+                if (!discountDoc) throw new HttpException('Discount not found', 404);
+
+                createSaleDto.products[i].discount = prod.price - (prod.price * discountDoc.percentage / 100);
+                
+            } else if (prod.activePromo && prod.activePromo?.type === 'promotion') {
+                const promotion = await this.promotionModel.findOne({ _id: prod.activePromo.id, shop: shop._id });
+                if (!promotion) throw new HttpException('Promotion not found', 404);
+
+                createSaleDto.products[i].discount = promotion.price;
+                const gift = promotion.buy - promotion.pay;
+
+                createSaleDto.products[i].discount = prod.price * gift;
+            } else {
+                createSaleDto.products[i].discount = 0;
+            }
+
+            discount += createSaleDto.products[i].discount * createSaleDto.products[i].quantity;
             subtotal += prod.price * createSaleDto.products[i].quantity;
         }
-        // TODO: Calculate discount
 
-        const igv = subtotal * 0.18;
-        const total = subtotal;
+        const igv = (subtotal - discount) * 0.18;
+        const total = (subtotal - discount);
         subtotal -= igv;
-        const discount = 0;
+        
 
         const data = Object.assign(createSaleDto, { 
             shop: shop._id,

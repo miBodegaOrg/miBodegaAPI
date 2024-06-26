@@ -5,6 +5,8 @@ import { Sale, SaleSchema } from 'src/schemas/Sales.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from 'src/auth/auth.module';
 import { Product, ProductSchema } from 'src/schemas/Product.schema';
+import { Discount, DiscountSchema } from 'src/schemas/Discount.schema';
+import { Promotion, PromotionSchema } from 'src/schemas/Promotion.schema';
 
 @Module({
   imports: [
@@ -17,6 +19,14 @@ import { Product, ProductSchema } from 'src/schemas/Product.schema';
         name: Product.name,
         schema: ProductSchema,
       },
+      {
+        name: Discount.name,
+        schema: DiscountSchema,
+      },
+      {
+        name: Promotion.name,
+        schema: PromotionSchema,
+      }
     ]),
     AuthModule
   ],

@@ -28,11 +28,18 @@ export class DiscountsService {
         const discount = await this.discountModel.findOne({ name: createDiscountDto.name, shop: shop._id });
         if (discount) throw new HttpException('Discount name already exists', 400);
 
+        let active = false
+        if (createDiscountDto.active && 
+            (!createDiscountDto.startDate || createDiscountDto.startDate <= new Date()) &&
+            (!createDiscountDto.endDate || createDiscountDto.endDate >= new Date())) active = true;
+
         for (let i = 0; i < createDiscountDto.products.length; i++) {
             validateObjectId(createDiscountDto.products[i], 'Product');
 
             const product = await this.productModel.findOne({ _id: createDiscountDto.products[i], shop: shop._id });
             if (!product) throw new HttpException('Product not found', 404);
+
+            if (product.activePromo && active) throw new HttpException('Product already has an active promotion', 400);
         }
 
         if (createDiscountDto.startDate && createDiscountDto.endDate && createDiscountDto.startDate > createDiscountDto.endDate) 
@@ -40,7 +47,18 @@ export class DiscountsService {
 
         const data = { ...createDiscountDto, shop: shop._id };
 
-        return this.discountModel.create(data);
+        const createdDiscount = await this.discountModel.create(data);
+
+        for (let i = 0; i < createDiscountDto.products.length; i++) {
+            const product = await this.productModel.findOne({ _id: createDiscountDto.products[i], shop: shop._id });
+            product.activePromo = {
+                type: "discount",
+                id: createdDiscount._id.toString()
+            };
+            product.save();
+        }
+
+        return createdDiscount
     }
 
     async updateDiscount(id: string, updateDiscountDto: UpdateDiscountDto, shop: Shop) {

@@ -20,6 +20,9 @@ export class Discount {
     @Prop({ required: true })
     active: boolean
 
+    @Prop({default: 0})
+    uses: number
+
     @Prop({ type: Array<mongoose.Schema.Types.ObjectId>, ref: 'Product', required: true })  
     products: Product[]
 
