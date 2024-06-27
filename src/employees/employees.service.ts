@@ -30,4 +30,36 @@ export class EmployeesService {
         if (!employee) throw new HttpException('Employee not found', 404);
         return employee
     }
+
+    getPermissions() {
+        return { 
+            permissions: [
+                "chats.create",
+                "chats.read",
+                "dashboards.read",
+                "discounts.create",
+                "discounts.read",
+                "discounts.update",
+                "discounts.delete",
+                "employees.create",
+                "employees.read",
+                "employees.update",
+                "employees.delete",
+                "products.create",
+                "products.update",
+                "products.delete",
+                "promotions.create",
+                "promotions.read",
+                "promotions.update",
+                "promotions.delete",
+                "purchases.create",
+                "purchases.read",
+                "sales.create",
+                "sales.read",
+                "suppliers.create",
+                "suppliers.update",
+                "suppliers.delete",
+            ]
+        }
+    }
 }

@@ -17,6 +17,11 @@ export class EmployeesController {
         return this.employeesService.createEmployee(createEmployeeDto, req.user)
     }
 
+    @Get('permissions')
+    getPermissions() {
+        return this.employeesService.getPermissions()
+    }
+
     @Get()
     @UseGuards(AuthGuard(), PermissionsGuard)
     @Permissions('employees.read')
