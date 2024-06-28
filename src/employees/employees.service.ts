@@ -1,10 +1,12 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, isValidObjectId } from 'mongoose';
 import { Employee } from 'src/schemas/Employee.schema';
 import { Shop } from 'src/schemas/Shop.schema';
 import { CreateEmployeeDto } from './dto/CreateEmployee.dto';
 import * as bcrypt from 'bcryptjs'
+import { UpdateEmployeeDto } from './dto/UpdateEmployee.dto';
+import { validateObjectId } from 'src/utils/validateObjectId';
 
 @Injectable()
 export class EmployeesService {
@@ -29,6 +31,30 @@ export class EmployeesService {
         const employee = await this.employeeModel.findOne({ _id: id, shop: shop._id });
         if (!employee) throw new HttpException('Employee not found', 404);
         return employee
+    }
+
+    async updateEmployee(id: string, updateEmployeeDto: UpdateEmployeeDto, shop: Shop) {
+        validateObjectId(id, 'employee');
+        if (updateEmployeeDto.dni) {
+            const employee = await this.employeeModel.findOne({ dni: updateEmployeeDto.dni, shop: shop._id });
+            if (employee) throw new HttpException('Employee with this dni already exists', 400);
+        }
+
+        if (updateEmployeeDto.password) {
+            updateEmployeeDto.password = await bcrypt.hash(updateEmployeeDto.password, 10)
+        }
+
+        const employee = await this.employeeModel.findOneAndUpdate({ _id: id, shop: shop._id }, updateEmployeeDto, { new: true });
+        if (!employee) throw new HttpException('Employee not found', 404);
+
+        return employee;
+    }
+
+    async deleteEmployee(id: string, shop: Shop) {
+        validateObjectId(id, 'employee');
+        const employee = await this.employeeModel.findOneAndDelete({ _id: id, shop: shop._id });
+        if (!employee) throw new HttpException('Employee not found', 404);
+        return employee;
     }
 
     getPermissions() {

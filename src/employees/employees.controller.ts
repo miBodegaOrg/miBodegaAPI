@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateEmployeeDto } from './dto/CreateEmployee.dto';
 import { PermissionsGuard, Permissions } from 'src/auth/guards/permission.guard';
+import { UpdateEmployeeDto } from './dto/UpdateEmployee.dto';
 
 @Controller('api/v1/employees')
 @ApiTags('Employees')
@@ -34,5 +35,19 @@ export class EmployeesController {
     @Permissions('employees.read')
     getEmployeeById(@Req() req, @Param('id') id: string) {
         return this.employeesService.getEmployeeById(id, req.user)
+    }
+
+    @Put(':id')
+    @UseGuards(AuthGuard(), PermissionsGuard)
+    @Permissions('employees.update')
+    updateEmployee(@Req() req, @Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
+        return this.employeesService.updateEmployee(id, updateEmployeeDto, req.user)
+    }
+
+    @Delete(':id')
+    @UseGuards(AuthGuard(), PermissionsGuard)
+    @Permissions('employees.delete')
+    deleteEmployee(@Req() req, @Param('id') id: string) {
+        return this.employeesService.deleteEmployee(id, req.user)
     }
 }
