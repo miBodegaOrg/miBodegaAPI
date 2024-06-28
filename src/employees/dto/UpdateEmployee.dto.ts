@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
+import { IsArray, IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
 
 export class UpdateEmployeeDto {
     @IsString()
@@ -25,4 +25,8 @@ export class UpdateEmployeeDto {
     @IsOptional()
     @MinLength(6)
     password: string;
+
+    @IsOptional()
+    @IsArray()
+    permissions: string[];
 }

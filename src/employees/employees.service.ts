@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, isValidObjectId } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Employee } from 'src/schemas/Employee.schema';
 import { Shop } from 'src/schemas/Shop.schema';
 import { CreateEmployeeDto } from './dto/CreateEmployee.dto';
