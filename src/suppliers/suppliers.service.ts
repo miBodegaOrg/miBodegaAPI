@@ -129,7 +129,7 @@ export class SuppliersService {
             );
         if (supplier.length == 0) throw new HttpException(`Supplier with RUC ${ruc} not found`, 404);
 
-        return supplier;
+        return supplier[0];
     }
 
     async update(ruc: string, shop: Shop, updateSupplierDto: UpdateSupplierDto) {

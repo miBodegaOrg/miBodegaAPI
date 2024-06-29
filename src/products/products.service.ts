@@ -47,7 +47,9 @@ export class ProductsService {
         await category.updateOne({ $push: { products: createdProduct._id } });
         await subcategory.updateOne({ $push: { products: createdProduct._id } });
 
-        return createdProduct;
+        return (await createdProduct
+            .populate('category', 'name'))
+                    .populate('subcategory', 'name');
     }
 
     async getAllProducts(filters, sortBy, orderBy) {
@@ -91,7 +93,9 @@ export class ProductsService {
     }
 
     getProductByCode(code: string, shop: Shop) {
-        return this.productModel.findOne({ code, shop: shop._id });
+        return this.productModel.findOne({ code, shop: shop._id })
+            .populate('category', 'name')
+            .populate('subcategory', 'name');
     }
 
     async deleteProduct(id: string, shop: Shop) {
