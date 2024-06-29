@@ -14,6 +14,7 @@ import { Promotion } from 'src/schemas/Promotion.schema';
 import { Discount } from 'src/schemas/Discount.schema';
 import { Purchase } from 'src/schemas/Purchase.schema';
 import { Supplier } from 'src/schemas/Supplier.schema';
+import { start } from 'repl';
 
 @Injectable()
 export class ChatsService {
@@ -26,7 +27,7 @@ export class ChatsService {
         @InjectModel(Sale.name) private saleModel: Model<Sale>,
         @InjectModel(Promotion.name) private promotionModel: Model<Promotion>,
         @InjectModel(Discount.name) private discountModel: Model<Discount>,
-        @InjectModel(Purchase.name) private puarchaseModel: Model<Purchase>,
+        @InjectModel(Purchase.name) private purchaseModel: Model<Purchase>,
         @InjectModel(Supplier.name) private supplierModel: Model<Supplier>
     ) {
         this.openai = new OpenAI({
@@ -39,11 +40,67 @@ export class ChatsService {
     async createChat(messageChatDto: MessageChatDto, shop: Shop) {
 
         const productsQuery = await this.productModel.find({ shop: shop._id }).populate('category', 'name');
-        const salesQuery = await this.saleModel.find({ shop: shop._id, createdAt: { $gt: new Date().setMonth(new Date().getMonth() - 1)}, status: 'paid'})
-        const promotionsQuery = await this.promotionModel.find({ shop: shop._id })
-        const discountsQuery = await this.discountModel.find({ shop: shop._id })
-        const purchasesQuery = await this.puarchaseModel.find({ shop: shop._id })
-        const suppliersQuery = await this.supplierModel.find({ shop: shop._id })
+        const salesQuery = await this.saleModel.find({ shop: shop._id, status: 'paid'})
+        const promotionsQuery = await this.promotionModel.find({ shop: shop._id }).populate('products', 'name')
+        const discountsQuery = await this.discountModel.find({ shop: shop._id }).populate('products', 'name')
+
+        const purchasesQuery = await this.purchaseModel.aggregate([
+          {
+            $match: {
+              shop: shop._id
+            }
+          },
+          {
+            $lookup: {
+              from: 'products',
+              localField: 'products.code',
+              foreignField: 'code',
+              as: 'productDetails'
+            }
+          },
+          {
+            $addFields: {
+              products: {
+                $map: {
+                  input: '$products',
+                  as: 'product',
+                  in: {
+                    $mergeObjects: [
+                      '$$product',
+                      {
+                        $arrayElemAt: [
+                          {
+                            $filter: {
+                              input: '$productDetails',
+                              as: 'productDetail',
+                              cond: { $eq: ['$$productDetail.code', '$$product.code'] }
+                            }
+                          },
+                          0
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            $lookup: {
+              from: 'suppliers',
+              localField: 'supplier',
+              foreignField: '_id',
+              as: 'supplier'
+            }
+          },
+          {
+            $project: {
+              productDetails: 0,
+            }
+          }
+        ]);
+        
+        const suppliersQuery = await this.supplierModel.find({ shop: shop._id }).populate('products._id', 'name')
 
         let files = []
         
@@ -81,28 +138,65 @@ export class ChatsService {
         if (discountsQuery.length > 0) {
           files.push("discounts.json")
 
-          const jsonDiscounts = JSON.stringify(discountsQuery, null, 2);
+          const discounts = discountsQuery.map(discount => ({
+            name: discount.name,
+            percentage: discount.percentage,
+            active: discount.active,
+            startDate: discount.startDate,
+            endDate: discount.endDate,
+            products: discount.products.map(product => product.name)
+          }));
+
+          const jsonDiscounts = JSON.stringify(discounts, null, 2);
           fs.writeFileSync('discounts.json', jsonDiscounts)
         }
 
         if (promotionsQuery.length > 0) {
           files.push("promotions.json")
 
-          const jsonPromotions = JSON.stringify(promotionsQuery, null, 2);
+          const promotions = promotionsQuery.map(promotion => ({
+            name: promotion.name,
+            startDate: promotion.startDate,
+            endDate: promotion.endDate,
+            active: promotion.active,
+            buy: promotion.buy,
+            pay: promotion.pay,
+            products: promotion.products.map(product => product.name)
+          }));
+
+          const jsonPromotions = JSON.stringify(promotions, null, 2);
           fs.writeFileSync('promotions.json', jsonPromotions)
         }
 
         if (purchasesQuery.length > 0) {
           files.push("purchases.json")
 
-          const jsonPurchases = JSON.stringify(purchasesQuery, null, 2);
+          const purchases = purchasesQuery.map(purchase => ({
+            products: purchase.products.map(product => ({ name: product.name, quantity: product.quantity })),
+            total: purchase.total,
+            subtotal: purchase.subtotal,
+            discount: purchase.discount,
+            status: purchase.status,
+            createdAt: purchase.createdAt,
+            supplier: purchase.supplier[0].name
+          }));
+
+          const jsonPurchases = JSON.stringify(purchases, null, 2);
           fs.writeFileSync('purchases.json', jsonPurchases)
         }
 
         if (suppliersQuery.length > 0) {
           files.push("suppliers.json")
 
-          const jsonSuppliers = JSON.stringify(suppliersQuery, null, 2);
+          const suppliers = suppliersQuery.map(supplier => ({
+            name: supplier.name,
+            ruc: supplier.ruc,
+            phone: supplier.phone,
+            // @ts-ignore
+            products: supplier.products.map(product => product._id.name)
+          }));
+
+          const jsonSuppliers = JSON.stringify(suppliers, null, 2);
           fs.writeFileSync('suppliers.json', jsonSuppliers)
         }
 
@@ -117,7 +211,7 @@ export class ChatsService {
     
         const assistant = await this.openai.beta.assistants.create({
             name: "Asesor comercial",
-            instructions: "Eres un experto comercial en tiendas pequeñas y medianas. Usa tu base de conocimientos para responder preguntas sobre recomendaciones o estrategias para mejorar las ventas.",
+            instructions: "Eres un experto comercial en tiendas pequeñas y medianas. Usa tu base de conocimientos para responder preguntas sobre recomendaciones o estrategias para mejorar las ventas. Utiliza los archivos proporcionados que contienen información sobre productos, ventas, descuentos, promociones, compras y proveedores de las bodegas. Todas las respuestas deben estar relacionadas con la información proporcionada. Por ejemplo, si te preguntan que descuentos o promociones crear, debes responser basado en el archivo de productos y proporciorles que productos específicamente debe crear el descuento o promoción. Sé lo más específico posible en tus respuestas y proporciona ejemplos concretos para ayudar a los dueños de las tiendas a tomar decisiones informadas posible y no des respuestas tan generales como 'crear un descuento para mejorar las ventas' o 'establece que produtos quieres hacer la promoción'. Si no puedes responder la pregunta, puedes decir 'No sé' o 'No tengo información suficiente para responder esa pregunta'. Siempre da ejemplos con la información proporcionada en los archivos. No digas 'Basándome en la información proporcionada', el cliente ya asume que la información se encuentra cargada. No indiques la fuente o referencia a los archivos ya que el cliente no cuenta con ellos.",
             model: "gpt-4o",
             tools: [{ type: "file_search" }],
             tool_resources: { file_search: { vector_store_ids: [vectorStore.id] } },

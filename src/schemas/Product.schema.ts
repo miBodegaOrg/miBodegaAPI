@@ -4,8 +4,6 @@ import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { Shop } from "./Shop.schema";
 import { Category } from "./Category.schema";
 import { Subcategory } from "./Subcategory.schema";
-import { Discount } from "./Discount.schema";
-import { Promotion } from "./Promotion.schema";
 
 @Schema({ timestamps: true })
 export class Product {

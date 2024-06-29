@@ -23,7 +23,7 @@ export class Promotion {
     @Prop({ required: true })
     active: boolean;
 
-    @Prop({ type: Array<mongoose.Schema.Types.ObjectId>, ref: 'Product', required: true })  
+    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }], required: true })
     products: Product[]
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true })

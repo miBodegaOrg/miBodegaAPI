@@ -23,7 +23,7 @@ export class Discount {
     @Prop({default: 0})
     uses: number
 
-    @Prop({ type: Array<mongoose.Schema.Types.ObjectId>, ref: 'Product', required: true })  
+    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }], required: true })  
     products: Product[]
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true })
