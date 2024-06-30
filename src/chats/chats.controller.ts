@@ -12,28 +12,28 @@ export class ChatsController {
 
     @Post()
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('chats.create')
+    @Permissions('chats.crear')
     createChat(@Body() createChatDto: MessageChatDto, @Req() req) {
         return this.chatsService.createChat(createChatDto, req.user);
     }
 
     @Post('response/:id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('chats.create')
+    @Permissions('chats.crear')
     responseChat(@Param('id') id: string, @Body() messageChatDto: MessageChatDto, @Req() req) {
         return this.chatsService.responseChat(id, messageChatDto, req.user);
     }
 
     @Get()
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('chats.read')
+    @Permissions('chats.leer')
     getAllChats(@Req() req) {
         return this.chatsService.getAllChats(req.user);
     }
 
     @Get(':id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('chats.read')
+    @Permissions('chats.leer')
     getChatById(@Param('id') id: string, @Req() req) {
         return this.chatsService.getChatById(id, req.user);
     }

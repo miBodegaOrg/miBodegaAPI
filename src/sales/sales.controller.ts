@@ -13,28 +13,28 @@ export class SalesController {
 
     @Post()
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('sales.create')
+    @Permissions('ventas.crear')
     async createSale(@Req() req, @Body() createSaleDto: CreateSaleDto) {
         return this.salesService.createSale(createSaleDto, req.user);
     }
 
     @Post('cancel/:id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('sales.create')
+    @Permissions('ventas.crear')
     async cancelSale(@Req() req, @Param('id') id: string) {
         return this.salesService.cancelSale(id, req.user);
     }
 
     @Post('paid/:id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('sales.create')
+    @Permissions('ventas.crear')
     async paidSale(@Req() req, @Param('id') id: string) {
         return this.salesService.paidSale(id, req.user);
     }
 
     @Get()
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('sales.read')
+    @Permissions('ventas.leer')
     async getSales(
         @Req() req,
         @Query('page') page: number,
@@ -47,7 +47,7 @@ export class SalesController {
 
     @Get(':id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('sales.read')
+    @Permissions('ventas.leer')
     async getSaleById(@Req() req, @Param('id') id: string) {
         return this.salesService.getSaleById(id, req.user);
     }

@@ -12,7 +12,7 @@ export class BarcodeController {
 
     @Post('create/:code')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('products.create')
+    @Permissions('productos.crear')
     async createBarcode(@Res() res, @Req() req, @Param('code') code: string) {
         const barcodeImage = await this.barcodeService.createBarcode(code, req.user);
         res.setHeader('Content-Type', 'image/png');

@@ -25,21 +25,21 @@ export class SuppliersController {
 
     @Post()
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('suppliers.create')
+    @Permissions('proveedores.crear')
     createSupplier(@Req() req, @Body() createSupplierDto: CreateSupplierDto) {
         return this.suppliersService.create(createSupplierDto, req.user);
     }
 
     @Put(':ruc')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('suppliers.update')
+    @Permissions('proveedores.actualizar')
     updateSupplier(@Param('ruc') ruc: string, @Req() req, @Body() updateSupplierDto: UpdateSupplierDto) {
         return this.suppliersService.update(ruc, req.user, updateSupplierDto);
     }
 
     @Delete(':ruc')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('suppliers.delete')
+    @Permissions('proveedores.eliminar')
     removeSupplier(@Param('ruc') ruc: string, @Req() req) {
         return this.suppliersService.remove(ruc, req.user);
     }

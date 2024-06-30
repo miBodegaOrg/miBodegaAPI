@@ -13,7 +13,7 @@ export class EmployeesController {
 
     @Post()
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('employees.create')
+    @Permissions('empleados.crear')
     createEmployee(@Req() req, @Body() createEmployeeDto: CreateEmployeeDto){
         return this.employeesService.createEmployee(createEmployeeDto, req.user)
     }
@@ -25,28 +25,28 @@ export class EmployeesController {
 
     @Get()
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('employees.read')
+    @Permissions('empleados.leer')
     getAllEmployees(@Req() req){
         return this.employeesService.getAllEmployees(req.user)
     }
 
     @Get(':id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('employees.read')
+    @Permissions('empleados.leer')
     getEmployeeById(@Req() req, @Param('id') id: string) {
         return this.employeesService.getEmployeeById(id, req.user)
     }
 
     @Put(':id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('employees.update')
+    @Permissions('empleados.actualizar')
     updateEmployee(@Req() req, @Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
         return this.employeesService.updateEmployee(id, updateEmployeeDto, req.user)
     }
 
     @Delete(':id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('employees.delete')
+    @Permissions('empleados.eliminar')
     deleteEmployee(@Req() req, @Param('id') id: string) {
         return this.employeesService.deleteEmployee(id, req.user)
     }

@@ -11,14 +11,14 @@ export class DashboardsController {
 
     @Get('categories')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('dashboards.read')
+    @Permissions('dashboards.leer')
     getDashboardCategories(@Req() req) {
        return this.dashboardsService.getSalesByCategory(req.user);
     }
 
     @Get('sales')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('dashboards.read')
+    @Permissions('dashboards.leer')
     getSalesDashboard(@Req() req, @Query('period') period: 'day' | 'week' | 'month' | 'year') {
        return this.dashboardsService.getSalesDashboard(req.user, period);
     }

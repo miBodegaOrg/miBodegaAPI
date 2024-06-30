@@ -151,7 +151,7 @@ export class ProductsService {
             return this.productModel.findOneAndUpdate({ _id: id, shop: shop._id }, { ...updateProductDto, image_url: url }, { new: true });
         } 
         
-        return this.productModel.findOneAndUpdate({ _id: id, shop: shop._id }, updateProductDto, { new: true });
+        return this.productModel.findOneAndUpdate({ _id: id, shop: shop._id }, updateProductDto, { new: true }).populate('category', 'name').populate('subcategory', 'name');
     }
 
     async generateProductCode(shop: Shop) {

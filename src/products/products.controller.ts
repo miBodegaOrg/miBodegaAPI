@@ -47,14 +47,14 @@ export class ProductsController {
 
     @Post('generate-code')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('products.create')
+    @Permissions('productos.crear')
     async generateProductCode(@Req() req) {
         const code = await this.productsService.generateProductCode(req.user);
         return { code };
     }
 
     @Post()
-    @Permissions('products.create')
+    @Permissions('productos.crear')
     @UseGuards(AuthGuard(), PermissionsGuard)
     @UseInterceptors(FileInterceptor('image'))
     createProduct(
@@ -67,7 +67,7 @@ export class ProductsController {
 
     @Put(':id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('products.update')
+    @Permissions('productos.actualizar')
     @UseInterceptors(FileInterceptor('image'))
     async updateProduct(
         @Param('id') id: string,
@@ -82,7 +82,7 @@ export class ProductsController {
 
     @Delete(':id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('products.delete')
+    @Permissions('productos.eliminar')
     daleteProduct(@Param('id') id: string, @Req() req) {
         return this.productsService.deleteProduct(id, req.user);
     }

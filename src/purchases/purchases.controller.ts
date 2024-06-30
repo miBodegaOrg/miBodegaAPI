@@ -12,28 +12,28 @@ export class PurchasesController {
 
     @Get()
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('purchases.read')
+    @Permissions('compras.leer')
     getAllPurchases(@Req() req) {
         return this.purchasesService.getAllPurchases(req.user);
     }
 
     @Get(':id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('purchases.read')
+    @Permissions('compras.leer')
     getPurchaseById(@Req() req, @Param('id') id: string) {
         return this.purchasesService.getPurchaseById(id, req.user);
     }
 
     @Post()
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('purchases.create')
+    @Permissions('compras.crear')
     createPurchase(@Req() req, @Body() createPurchaseDto: CreatePurchaseDto) {
         return this.purchasesService.createPurchase(createPurchaseDto, req.user);
     }
 
     @Post('received/:id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('purchases.create')
+    @Permissions('compras.crear')
     receivedPurchase(@Req() req, @Param('id') id: string) {
         return this.purchasesService.receivedPurchase(id, req.user);
     }

@@ -13,35 +13,35 @@ export class DiscountsController {
 
     @Get()
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('discounts.read')
+    @Permissions('descuentos.leer')
     getDiscounts(@Req() req) {
         return this.discountsService.getAllDiscounts(req.user);
     }
 
     @Get(':id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('discounts.read')
+    @Permissions('descuentos.leer')
     getDiscountById(@Req() req, @Param('id') id: string) {
         return this.discountsService.getDiscountById(id, req.user);
     }
 
     @Post()
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('discounts.create')
+    @Permissions('descuentos.crear')
     createDiscount(@Req() req, @Body() createDiscountDto: CreateDiscountDto) {
         return this.discountsService.createDiscount(createDiscountDto, req.user);
     }
 
     @Put(':id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('discounts.update')
+    @Permissions('descuentos.actualizar')
     updateDiscount(@Req() req, @Param('id') id: string, @Body() updateDiscountDto: UpdateDiscountDto) {
         return this.discountsService.updateDiscount(id, updateDiscountDto, req.user);
     }
 
     @Delete(':id')
     @UseGuards(AuthGuard(), PermissionsGuard)
-    @Permissions('discounts.delete')
+    @Permissions('descuentos.eliminar')
     deleteDiscount(@Req() req, @Param('id') id: string) {
         return this.discountsService.deleteDiscount(id, req.user);
     }
