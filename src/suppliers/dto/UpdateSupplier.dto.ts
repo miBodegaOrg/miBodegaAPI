@@ -1,5 +1,6 @@
 import { Type } from "class-transformer";
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Length, Matches, ValidateNested } from "class-validator";
+import { IsArray, IsEmpty, IsNotEmpty, IsNumber, IsOptional, IsString, Length, Matches, ValidateNested } from "class-validator";
+import mongoose from "mongoose";
 
 export class SupplierProduct {
     @IsString()
@@ -9,6 +10,9 @@ export class SupplierProduct {
     @IsNumber()
     @IsNotEmpty()
     cost: number;
+
+    @IsEmpty()
+    _id: mongoose.Types.ObjectId;
 }
 
 export class UpdateSupplierDto {

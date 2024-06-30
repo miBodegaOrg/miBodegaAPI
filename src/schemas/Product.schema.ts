@@ -4,6 +4,7 @@ import * as mongoosePaginate from 'mongoose-paginate-v2';
 import { Shop } from "./Shop.schema";
 import { Category } from "./Category.schema";
 import { Subcategory } from "./Subcategory.schema";
+import { Supplier } from "./Supplier.schema";
 
 @Schema({ timestamps: true })
 export class Product {
@@ -42,6 +43,9 @@ export class Product {
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true })
     shop: Shop;
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Supplier'})
+    supplier: mongoose.Types.ObjectId
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
