@@ -32,7 +32,7 @@ export class SuppliersService {
         const createdSupplier = await createSupplier.save();
 
         for (let i = 0; i < createSupplierDto.products.length; i++) {
-            await this.productModel.updateOne({ code: createSupplierDto.products[i].code, shop: shop._id }, { supplier: createdSupplier._id });
+            await this.productModel.updateOne({ code: createSupplierDto.products[i].code, shop: shop._id }, { supplier: createdSupplier._id, cost: createSupplierDto.products[i].cost });
         }
 
         return createdSupplier;
@@ -155,10 +155,10 @@ export class SuppliersService {
 
         const updatedSupplier = await this.supplierModel.findOneAndUpdate({ ruc, shop: shop._id }, updateSupplierDto, { new: true });
 
-        await this.productModel.updateMany({ supplier: supplier._id }, { $unset: { supplier: "" } });
+        await this.productModel.updateMany({ supplier: supplier._id, shop: shop._id }, { $unset: { supplier: "", cost: "" } });
 
         for (let i = 0; i < updateSupplierDto.products.length; i++) {
-          await this.productModel.updateOne({ code: updateSupplierDto.products[i].code, shop: shop._id }, { supplier: updatedSupplier._id });
+          await this.productModel.updateOne({ code: updateSupplierDto.products[i].code, shop: shop._id }, { supplier: updatedSupplier._id, cost: updateSupplierDto.products[i].cost });
         }
 
         return updatedSupplier;

@@ -46,6 +46,9 @@ export class Product {
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Supplier'})
     supplier: mongoose.Types.ObjectId
+
+    @Prop()
+    cost: number
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

@@ -59,6 +59,8 @@ export class SalesService {
             createSaleDto.products[i].name = prod.name;
             createSaleDto.products[i].price = prod.price;
 
+            createSaleDto.products[i].cost = prod.cost ? prod.cost : 0;
+
             if (prod.activePromo && prod.activePromo?.type === 'discount') {
                 const discountDoc = await this.discountModel.findOne({ _id: prod.activePromo.id, shop: shop._id });
                 if (!discountDoc) throw new HttpException('Discount not found', 404);
@@ -76,6 +78,8 @@ export class SalesService {
             } else {
                 createSaleDto.products[i].discount = 0;
             }
+
+            createSaleDto.products[i].rentability = createSaleDto.products[i].price - createSaleDto.products[i].discount - createSaleDto.products[i].cost;
 
             discount += createSaleDto.products[i].discount * createSaleDto.products[i].quantity;
             subtotal += prod.price * createSaleDto.products[i].quantity;
