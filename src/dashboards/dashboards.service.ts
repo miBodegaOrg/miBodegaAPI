@@ -103,9 +103,56 @@ export class DashboardsService {
           ]);
     }
 
-    async getProductRentabilityDashboard(shop: Shop) {
-        const sales = await this.saleModel.find({ shop: shop._id, status: 'paid' });
-
+    async getRentabilityDashboard(shop: Shop) {
+        return this.productModel.aggregate(
+          [
+            {
+              $match: {
+                shop: shop._id
+              }
+            },
+            {
+              $lookup: {
+                from: "sales",
+                let: { productCode: "$code" },
+                pipeline: [
+                  { $unwind: "$products" },
+                  { $match: {
+                      $expr: {
+                        $and: [
+                          { $eq: ["$products.code", "$$productCode"] },
+                          { $eq: ["$status", "paid"] },
+                          { $eq: ["$shop", shop._id]}
+                        ]
+                      }
+                    }
+                  },
+                  { $group: {
+                      _id: null,
+                      rentability: { $sum: "$products.rentability" }
+                    }
+                  }
+                ],
+                as: "salesData"
+              }
+            },
+            {
+              $addFields: {
+                rentability: {
+                  $ifNull: [{ $arrayElemAt: ["$salesData.rentability", 0] }, 0]
+                }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                code: 1,
+                name: 1,
+                rentability: 1
+              }
+            }
+          ]
+        )
 
     } 
 }

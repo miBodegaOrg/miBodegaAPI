@@ -22,4 +22,11 @@ export class DashboardsController {
     getSalesDashboard(@Req() req, @Query('period') period: 'day' | 'week' | 'month' | 'year') {
        return this.dashboardsService.getSalesDashboard(req.user, period);
     }
+
+    @Get('rentability')
+    @UseGuards(AuthGuard(), PermissionsGuard)
+    @Permissions('dashboards.leer')
+    getRentability(@Req() req) {
+       return this.dashboardsService.getRentabilityDashboard(req.user);
+    }
 }
