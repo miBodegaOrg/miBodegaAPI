@@ -178,7 +178,7 @@ export class ChatsService {
             discount: purchase.discount,
             status: purchase.status,
             createdAt: purchase.createdAt,
-            supplier: purchase.supplier[0].name
+            supplier: purchase.supplier.name
           }));
 
           const jsonPurchases = JSON.stringify(purchases, null, 2);
