@@ -7,6 +7,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { R2Module } from 'src/r2/r2.module';
 import { Category, CategorySchema } from 'src/schemas/Category.schema';
 import { Subcategory, SubcategorySchema } from 'src/schemas/Subcategory.schema';
+import { Supplier, SupplierSchema } from '../schemas/Supplier.schema';
 
 @Module({
   imports: [
@@ -23,6 +24,10 @@ import { Subcategory, SubcategorySchema } from 'src/schemas/Subcategory.schema';
       {
         name: Subcategory.name,
         schema: SubcategorySchema,
+      },
+      {
+        name: Supplier.name,
+        schema: SupplierSchema,
       },
     ]),
     R2Module,

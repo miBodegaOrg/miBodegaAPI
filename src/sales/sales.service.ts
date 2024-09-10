@@ -61,7 +61,7 @@ export class SalesService {
     let subtotal = 0;
     let discount = 0;
     for (let i = 0; i < createSaleDto.products.length; i++) {
-      let prod = await this.productModel.findOne({
+      const prod = await this.productModel.findOne({
         code: createSaleDto.products[i].code,
         shop: shop._id,
       });
@@ -158,7 +158,7 @@ export class SalesService {
       throw new HttpException('Sale status must be pending', 500);
 
     for (const productItem of sale.products) {
-      let product = await this.productModel.findOne({
+      const product = await this.productModel.findOne({
         code: productItem.code,
         shop: shop._id,
       });

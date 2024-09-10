@@ -113,7 +113,7 @@ export class ChatsService {
       .find({ shop: shop._id })
       .populate('products._id', 'name');
 
-    let files = [];
+    const files = [];
 
     if (productsQuery.length > 0) {
       const products = productsQuery.map((product) => ({
@@ -216,7 +216,7 @@ export class ChatsService {
 
     const fileStreams = files.map((path) => fs.createReadStream(path));
 
-    let vectorStore = await this.openai.beta.vectorStores.create({
+    const vectorStore = await this.openai.beta.vectorStores.create({
       name: 'Shop data - ' + new Date().toISOString(),
     });
     await this.openai.beta.vectorStores.fileBatches.uploadAndPoll(

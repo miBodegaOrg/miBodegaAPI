@@ -40,7 +40,7 @@ export class PurchasesService {
     let subtotal = 0;
 
     for (let i = 0; i < createPurchaseDto.products.length; i++) {
-      let product = await this.productModel.findOne({
+      const product = await this.productModel.findOne({
         code: createPurchaseDto.products[i].code,
         shop: shop._id,
       });
@@ -65,7 +65,7 @@ export class PurchasesService {
           404,
         );
 
-      let price = supplier.products.find((p) => p.code === product.code).cost;
+      const price = supplier.products.find((p) => p.code === product.code).cost;
       subtotal += price * createPurchaseDto.products[i].quantity;
     }
 

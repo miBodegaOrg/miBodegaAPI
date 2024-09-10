@@ -25,7 +25,7 @@ export class SuppliersService {
       );
 
     for (let i = 0; i < createSupplierDto.products.length; i++) {
-      let product = await this.productModel.findOne({
+      const product = await this.productModel.findOne({
         code: createSupplierDto.products[i].code,
         shop: shop._id,
       });
@@ -171,7 +171,7 @@ export class SuppliersService {
 
     if (updateSupplierDto.products) {
       for (let i = 0; i < updateSupplierDto.products.length; i++) {
-        let product = await this.productModel.findOne({
+        const product = await this.productModel.findOne({
           code: updateSupplierDto.products[i].code,
           shop: shop._id,
         });
