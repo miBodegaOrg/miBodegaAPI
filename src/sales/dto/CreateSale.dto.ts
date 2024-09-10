@@ -1,37 +1,46 @@
-import { Type } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsEmpty, IsNotEmpty, IsNumber, IsString, Min, ValidateNested } from "class-validator";
+import { Type } from 'class-transformer';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsEmpty,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 
 export class ProductItem {
-    @IsString()
-    @IsNotEmpty()
-    code: string;
+  @IsString()
+  @IsNotEmpty()
+  code: string;
 
-    @IsNumber()
-    @IsNotEmpty()
-    @Min(0.001)
-    quantity: number;
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(0.001)
+  quantity: number;
 
-    @IsEmpty()
-    name: string;
+  @IsEmpty()
+  name: string;
 
-    @IsEmpty()
-    price: number;
+  @IsEmpty()
+  price: number;
 
-    @IsEmpty()
-    discount: number;
+  @IsEmpty()
+  discount: number;
 
-    @IsEmpty()
-    cost: number
+  @IsEmpty()
+  cost: number;
 
-    @IsEmpty()
-    rentability: number;
+  @IsEmpty()
+  rentability: number;
 }
 
 export class CreateSaleDto {
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => ProductItem)
-    @ArrayNotEmpty()
-    @IsNotEmpty()
-    products: ProductItem[]
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductItem)
+  @ArrayNotEmpty()
+  @IsNotEmpty()
+  products: ProductItem[];
 }

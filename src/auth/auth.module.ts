@@ -16,7 +16,7 @@ import { Employee, EmployeeSchema } from 'src/schemas/Employee.schema';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-      })
+      }),
     }),
     MongooseModule.forFeature([
       { name: Shop.name, schema: ShopSchema },

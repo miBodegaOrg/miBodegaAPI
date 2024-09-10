@@ -11,10 +11,10 @@ import { AuthModule } from 'src/auth/auth.module';
     AuthModule,
     MongooseModule.forFeature([
       { name: Product.name, schema: ProductSchema },
-      { name: Sale.name, schema: SaleSchema}
-    ])
+      { name: Sale.name, schema: SaleSchema },
+    ]),
   ],
   controllers: [DashboardsController],
-  providers: [DashboardsService]
+  providers: [DashboardsService],
 })
 export class DashboardsModule {}

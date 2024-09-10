@@ -6,21 +6,20 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('Categories')
 @Controller('api/v1/categories')
 export class CategoriesController {
-    constructor(private categoriesService: CategoriesService) {}
+  constructor(private categoriesService: CategoriesService) {}
 
-    @Post()
-    createCategory(@Body() createCategoryDto: CreateCategoryDto) {
-        return this.categoriesService.createCategory(createCategoryDto);
-    }
+  @Post()
+  createCategory(@Body() createCategoryDto: CreateCategoryDto) {
+    return this.categoriesService.createCategory(createCategoryDto);
+  }
 
-    @Get()
-    getCategories() {
-        return this.categoriesService.getCategories();
-    }
+  @Get()
+  getCategories() {
+    return this.categoriesService.getCategories();
+  }
 
-    @Get("with-products")
-    getCategoryWithProducts() {
-        return this.categoriesService.getCategoriesWithProducts();
-    }
-
+  @Get('with-products')
+  getCategoryWithProducts() {
+    return this.categoriesService.getCategoriesWithProducts();
+  }
 }

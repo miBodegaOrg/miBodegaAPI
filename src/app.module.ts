@@ -24,8 +24,8 @@ import { PromotionsModule } from './promotions/promotions.module';
     MongooseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        return { uri: configService.get<string>('MONGODB_URI')}
-      }
+        return { uri: configService.get<string>('MONGODB_URI') };
+      },
     }),
     ProductsModule,
     AuthModule,

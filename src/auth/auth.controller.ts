@@ -7,15 +7,15 @@ import { SignInDto } from './dto/SignIn.dto';
 @ApiTags('Auth')
 @Controller('api/v1/auth')
 export class AuthController {
-    constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
-    @Post('signup')
-    signUp(@Body() signUpDto: SignUpDto) {
-        return this.authService.signUp(signUpDto)
-    }
+  @Post('signup')
+  signUp(@Body() signUpDto: SignUpDto) {
+    return this.authService.signUp(signUpDto);
+  }
 
-    @Post('signin')
-    signIn(@Body() signInShopDto: SignInDto) {
-        return this.authService.signIn(signInShopDto)
-    }
+  @Post('signin')
+  signIn(@Body() signInShopDto: SignInDto) {
+    return this.authService.signIn(signInShopDto);
+  }
 }

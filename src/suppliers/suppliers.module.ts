@@ -11,10 +11,10 @@ import { Product, ProductSchema } from 'src/schemas/Product.schema';
     AuthModule,
     MongooseModule.forFeature([
       { name: Supplier.name, schema: SupplierSchema },
-      { name: Product.name, schema: ProductSchema }
-    ])
+      { name: Product.name, schema: ProductSchema },
+    ]),
   ],
   controllers: [SuppliersController],
-  providers: [SuppliersService]
+  providers: [SuppliersService],
 })
 export class SuppliersModule {}

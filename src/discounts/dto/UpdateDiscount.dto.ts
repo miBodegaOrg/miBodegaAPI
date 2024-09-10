@@ -1,29 +1,38 @@
-import { ArrayNotEmpty, IsArray, IsBoolean, IsDate, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class UpdateDiscountDto {
-    
-    @IsString()
-    @IsOptional()
-    name: string;
+  @IsString()
+  @IsOptional()
+  name: string;
 
-    @IsOptional()
-    startDate: Date
-    
-    @IsOptional()
-    endDate: Date
+  @IsOptional()
+  startDate: Date;
 
-    @Max(100)
-    @Min(0)
-    @IsNumber()
-    @IsOptional()
-    percentage: number
+  @IsOptional()
+  endDate: Date;
 
-    @IsBoolean()
-    @IsOptional()
-    active: boolean
+  @Max(100)
+  @Min(0)
+  @IsNumber()
+  @IsOptional()
+  percentage: number;
 
-    @IsArray()
-    @ArrayNotEmpty()
-    @IsOptional()
-    products: string[]
+  @IsBoolean()
+  @IsOptional()
+  active: boolean;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsOptional()
+  products: string[];
 }

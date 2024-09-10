@@ -7,6 +7,6 @@ import { AuthModule } from 'src/auth/auth.module';
 @Module({
   imports: [ProductsModule, AuthModule],
   controllers: [BarcodeController],
-  providers: [BarcodeService]
+  providers: [BarcodeService],
 })
 export class BarcodeModule {}

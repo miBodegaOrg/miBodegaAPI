@@ -13,10 +13,10 @@ import { Supplier, SupplierSchema } from 'src/schemas/Supplier.schema';
     MongooseModule.forFeature([
       { name: Purchase.name, schema: PurchaseSchema },
       { name: Product.name, schema: ProductSchema },
-      { name: Supplier.name, schema: SupplierSchema }
-    ])
+      { name: Supplier.name, schema: SupplierSchema },
+    ]),
   ],
   controllers: [PurchasesController],
-  providers: [PurchasesService]
+  providers: [PurchasesService],
 })
 export class PurchasesModule {}

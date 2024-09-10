@@ -188,9 +188,7 @@ export class DashboardsService {
       },
       {
         $sort: { stock: -1 },
-      }
+      },
     ]);
-
   }
-
 }

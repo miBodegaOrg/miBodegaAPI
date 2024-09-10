@@ -26,12 +26,12 @@ import { Promotion, PromotionSchema } from 'src/schemas/Promotion.schema';
       {
         name: Promotion.name,
         schema: PromotionSchema,
-      }
+      },
     ]),
-    AuthModule
+    AuthModule,
   ],
   controllers: [SalesController],
-  providers: [SalesService]
+  providers: [SalesService],
 })
 export class SalesModule {
   constructor(private salesService: SalesService) {}

@@ -25,7 +25,7 @@ import { Subcategory, SubcategorySchema } from 'src/schemas/Subcategory.schema';
         schema: SubcategorySchema,
       },
     ]),
-    R2Module
+    R2Module,
   ],
   controllers: [ProductsController],
   providers: [ProductsService],

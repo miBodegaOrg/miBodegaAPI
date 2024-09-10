@@ -17,10 +17,10 @@ import { Product, ProductSchema } from 'src/schemas/Product.schema';
       {
         name: Product.name,
         schema: ProductSchema,
-      }
+      },
     ]),
   ],
   controllers: [PromotionsController],
-  providers: [PromotionsService]
+  providers: [PromotionsService],
 })
 export class PromotionsModule {}

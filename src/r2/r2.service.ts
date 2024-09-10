@@ -1,12 +1,16 @@
-import { PutObjectCommand, S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import {
+  PutObjectCommand,
+  S3Client,
+  DeleteObjectCommand,
+} from '@aws-sdk/client-s3';
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class R2Service {
-    private readonly s3Client: S3Client;
-    private readonly bucketName: string;
+  private readonly s3Client: S3Client;
+  private readonly bucketName: string;
 
   constructor(private configService: ConfigService) {
     this.s3Client = new S3Client({
@@ -22,27 +26,27 @@ export class R2Service {
 
   async uploadFile(body: Buffer, contentType: string): Promise<string> {
     try {
-        const key = uuidv4();
+      const key = uuidv4();
 
-        const command = new PutObjectCommand({
-            Bucket: this.bucketName,
-            Key: key,
-            Body: body,
-            ContentType: contentType,
-        });
-        await this.s3Client.send(command);
+      const command = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+        Body: body,
+        ContentType: contentType,
+      });
+      await this.s3Client.send(command);
 
-        return `https://pub-67cf39beb81c4c46a109e7c06577c1a4.r2.dev/${key}`;
+      return `https://pub-67cf39beb81c4c46a109e7c06577c1a4.r2.dev/${key}`;
     } catch (error) {
       throw new HttpException('Error uploading image', 500);
     }
   }
 
-    async deleteFile(key: string): Promise<void> {
-        const command = new DeleteObjectCommand({
-            Bucket: this.bucketName,
-            Key: key,
-        });
-        await this.s3Client.send(command);
-    }
+  async deleteFile(key: string): Promise<void> {
+    const command = new DeleteObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+    });
+    await this.s3Client.send(command);
+  }
 }

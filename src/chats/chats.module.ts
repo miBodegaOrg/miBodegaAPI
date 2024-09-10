@@ -42,10 +42,10 @@ import { Supplier, SupplierSchema } from 'src/schemas/Supplier.schema';
       {
         name: Supplier.name,
         schema: SupplierSchema,
-      }
-    ])
+      },
+    ]),
   ],
   controllers: [ChatsController],
-  providers: [ChatsService]
+  providers: [ChatsService],
 })
 export class ChatsModule {}

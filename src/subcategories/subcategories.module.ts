@@ -15,10 +15,10 @@ import { Subcategory, SubcategorySchema } from 'src/schemas/Subcategory.schema';
       {
         name: Subcategory.name,
         schema: SubcategorySchema,
-      }
+      },
     ]),
   ],
   controllers: [SubcategoriesController],
-  providers: [SubcategoriesService]
+  providers: [SubcategoriesService],
 })
 export class SubcategoriesModule {}

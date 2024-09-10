@@ -1,32 +1,39 @@
-import { IsArray, IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
+import {
+  IsArray,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class CreateEmployeeDto {
-    @IsString()
-    @IsNotEmpty()
-    name: string;
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
-    @IsString()
-    @IsOptional()
-    lastname: string;
+  @IsString()
+  @IsOptional()
+  lastname: string;
 
-    @IsEmail()
-    @IsOptional()
-    email: string;
+  @IsEmail()
+  @IsOptional()
+  email: string;
 
-    @IsString()
-    @IsNotEmpty()
-    dni: string;
+  @IsString()
+  @IsNotEmpty()
+  dni: string;
 
-    @IsString()
-    @IsNotEmpty()
-    phone: string;
+  @IsString()
+  @IsNotEmpty()
+  phone: string;
 
-    @IsString()
-    @IsNotEmpty()
-    @MinLength(6)
-    password: string;
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6)
+  password: string;
 
-    @IsOptional()
-    @IsArray()
-    permissions: string[];
+  @IsOptional()
+  @IsArray()
+  permissions: string[];
 }
