@@ -1,6 +1,8 @@
 import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
+  IsNotEmpty,
+  isNotEmptyObject,
   IsNumber,
   IsOptional,
   IsString,
@@ -8,32 +10,32 @@ import {
 } from 'class-validator';
 
 export class UpdateProductDto {
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   name: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   code: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @Transform(({ value }) => Number(value))
   @IsNumber()
   @Min(0)
   @Type(() => Number)
   price: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @Transform(({ value }) => Number(value))
   @IsNumber()
   @Min(0.001)
   stock: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   category: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   subcategory: string;
 
@@ -54,7 +56,7 @@ export class UpdateProductDto {
   @IsString()
   supplier?: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @Transform(({ value }) => Number(value))
   @IsNumber()
   @Min(0)

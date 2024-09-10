@@ -198,58 +198,44 @@ export class ProductsService {
     });
     if (!product) throw new HttpException('Product not found', 404);
 
-    if (updateProductDto.weight === false) {
-      if (updateProductDto.stock && !Number.isInteger(updateProductDto.stock))
-        throw new HttpException(
-          'Stock must be an integer if product is not weight type',
-          400,
-        );
-      if (!updateProductDto.stock && !Number.isInteger(product.stock))
-        throw new HttpException(
-          'Actual stock must be a integer when you update to non weight type',
-          400,
-        );
-    } else if (
-      !updateProductDto.hasOwnProperty('weight') &&
-      updateProductDto.hasOwnProperty('stock')
-    ) {
-      if (!Number.isInteger(updateProductDto.stock) && product.weight === false)
-        throw new HttpException(
-          'Stock must be an integer if product is not weight type',
-          400,
-        );
-    }
+    const productCode = await this.getProductByCode(
+      updateProductDto.code,
+      shop,
+    );
+    if (productCode && product._id.toString() !== productCode._id.toString())
+      throw new HttpException(
+        `Product with code ${updateProductDto.code} already exists`,
+        400,
+      );
 
-    let category;
-    if (
-      updateProductDto.category &&
-      product.category.toString() !== updateProductDto.category
-    ) {
-      category = await this.categoryModel.findOne({
-        name: updateProductDto.category,
+    if (!updateProductDto.weight && !Number.isInteger(updateProductDto.stock))
+      throw new HttpException(
+        'Stock must be an integer if product is not weight type',
+        400,
+      );
+
+    const category = await this.categoryModel.findOne({
+      name: updateProductDto.category,
+    });
+    if (!category) throw new HttpException('Category not found', 404);
+    updateProductDto.category = category._id.toString();
+
+    const subcategory = await this.subcategoryModel.findOne({
+      name: updateProductDto.subcategory,
+    });
+    if (!subcategory) throw new HttpException('Subcategory not found', 404);
+    updateProductDto.subcategory = subcategory._id.toString();
+
+    if (subcategory.category.toString() !== category._id.toString())
+      throw new HttpException('Subcategory does not belong to category', 400);
+
+    if (updateProductDto.supplier) {
+      validateObjectId(updateProductDto.supplier, 'supplier');
+      const supplier = await this.supplierModel.findOne({
+        _id: updateProductDto.supplier,
+        shop: shop._id,
       });
-      if (!category) throw new HttpException('Category not found', 404);
-
-      if (!updateProductDto.subcategory)
-        throw new HttpException(
-          'Subcategory is required when update category',
-          400,
-        );
-      updateProductDto.category = category._id.toString();
-    }
-
-    if (updateProductDto.subcategory) {
-      if (!category) {
-        category = await this.categoryModel.findOne({ name: product.category });
-        updateProductDto.category = category._id.toString();
-      }
-      const subcategory = await this.subcategoryModel.findOne({
-        name: updateProductDto.subcategory,
-      });
-      if (!subcategory) throw new HttpException('Subcategory not found', 404);
-      if (subcategory.category.toString() !== category._id.toString())
-        throw new HttpException('Subcategory does not belong to category', 400);
-      updateProductDto.subcategory = subcategory._id.toString();
+      if (!supplier) throw new HttpException('Supplier not found', 404);
     }
 
     if (product.image_url !== '')
@@ -263,13 +249,83 @@ export class ProductsService {
         { new: true },
       );
     }
-
-    return this.productModel
+    const updatedProduct = await this.productModel
       .findOneAndUpdate({ _id: id, shop: shop._id }, updateProductDto, {
         new: true,
       })
       .populate('category', 'name')
       .populate('subcategory', 'name');
+
+    await this.categoryModel.findOneAndUpdate(
+      {
+        _id: product.category,
+      },
+      {
+        $pull: { products: id },
+      },
+    );
+
+    await this.categoryModel.findOneAndUpdate(
+      {
+        _id: updateProductDto.category,
+      },
+      {
+        $push: { products: id },
+      },
+    );
+
+    await this.subcategoryModel.findOneAndUpdate(
+      {
+        _id: product.subcategory,
+      },
+      {
+        $pull: { products: id },
+      },
+    );
+    await this.subcategoryModel.findOneAndUpdate(
+      {
+        _id: updateProductDto.subcategory,
+      },
+      {
+        $push: { products: id },
+      },
+    );
+
+    if (product.supplier) {
+      await this.supplierModel.findOneAndUpdate(
+        {
+          _id: product.supplier,
+          shop: shop._id,
+        },
+        {
+          $pull: {
+            products: {
+              _id: id,
+            },
+          },
+        },
+      );
+    }
+
+    if (updateProductDto.supplier) {
+      await this.supplierModel.updateOne(
+        {
+          _id: updateProductDto.supplier,
+          shop: shop._id,
+        },
+        {
+          $push: {
+            products: {
+              _id: id,
+              cost: updateProductDto.cost,
+              code: product.code,
+            },
+          },
+        },
+      );
+    }
+
+    return updatedProduct;
   }
 
   async generateProductCode(shop: Shop) {
