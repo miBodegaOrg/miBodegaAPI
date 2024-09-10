@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/CreateProduct.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from 'src/schemas/Product.schema';
-import mongoose, { PaginateModel } from 'mongoose';
+import { PaginateModel } from 'mongoose';
 import { UpdateProductDto } from './dto/UpdateProduct.dto';
 import { Shop } from 'src/schemas/Shop.schema';
 import { R2Service } from 'src/r2/r2.service';
@@ -10,6 +10,7 @@ import { generateRandom11DigitNumber } from 'src/utils/generateRandom11DigitNumb
 import { Category } from 'src/schemas/Category.schema';
 import { Subcategory } from 'src/schemas/Subcategory.schema';
 import { validateObjectId } from 'src/utils/validateObjectId';
+import { Supplier } from '../schemas/Supplier.schema';
 
 @Injectable()
 export class ProductsService {
@@ -18,6 +19,7 @@ export class ProductsService {
     @InjectModel(Category.name) private categoryModel: PaginateModel<Category>,
     @InjectModel(Subcategory.name)
     private subcategoryModel: PaginateModel<Subcategory>,
+    @InjectModel(Supplier.name) private supplierModel: PaginateModel<Supplier>,
     private readonly r2Service: R2Service,
   ) {}
 
@@ -32,6 +34,16 @@ export class ProductsService {
         `Product with code ${createProductDto.code} already exists`,
         400,
       );
+
+    if (createProductDto.supplier) {
+      validateObjectId(createProductDto.supplier, 'supplier');
+      const supplier = await this.supplierModel.findOne({
+        _id: createProductDto.supplier,
+        shop: shop._id,
+      });
+
+      if (!supplier) throw new HttpException('Supplier not found', 404);
+    }
 
     const category = await this.categoryModel.findOne({
       name: createProductDto.category,
@@ -68,6 +80,24 @@ export class ProductsService {
 
     await category.updateOne({ $push: { products: createdProduct._id } });
     await subcategory.updateOne({ $push: { products: createdProduct._id } });
+
+    if (createdProduct.supplier) {
+      await this.supplierModel.updateOne(
+        {
+          _id: createdProduct.supplier,
+          shop: shop._id,
+        },
+        {
+          $push: {
+            products: {
+              _id: createdProduct._id,
+              cost: createProductDto.cost,
+              code: createdProduct.code,
+            },
+          },
+        },
+      );
+    }
 
     return (await createdProduct.populate('category', 'name')).populate(
       'subcategory',
@@ -226,7 +256,7 @@ export class ProductsService {
       await this.r2Service.deleteFile(product.image_url.split('/').pop());
 
     if (image) {
-      let url = await this.r2Service.uploadFile(image.buffer, image.mimetype);
+      const url = await this.r2Service.uploadFile(image.buffer, image.mimetype);
       return this.productModel.findOneAndUpdate(
         { _id: id, shop: shop._id },
         { ...updateProductDto, image_url: url },

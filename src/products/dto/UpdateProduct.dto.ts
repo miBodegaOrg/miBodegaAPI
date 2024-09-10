@@ -1,7 +1,6 @@
 import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsInt,
   IsNumber,
   IsOptional,
   IsString,
@@ -50,4 +49,15 @@ export class UpdateProductDto {
 
   @IsOptional()
   image?: File;
+
+  @IsOptional()
+  @IsString()
+  supplier?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => Number(value))
+  @IsNumber()
+  @Min(0)
+  @Type(() => Number)
+  cost: number;
 }
