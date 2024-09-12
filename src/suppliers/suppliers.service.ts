@@ -67,6 +67,9 @@ export class SuppliersService {
   async getAllSuppliers(shop: Shop) {
     const suppliers = await this.supplierModel.aggregate([
       {
+        $match: { shop: shop._id },
+      },
+      {
         $lookup: {
           from: 'products',
           localField: 'products._id',
