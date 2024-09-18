@@ -300,7 +300,7 @@ export class ChatsService {
         {
           role: 'user',
           content:
-            'Dame una sola recomendación para mejorar el rendimiento de mi tienda en 20 palabras o menos.',
+            'Dame una sola recomendación según los datos para mejorar el rendimiento de mi tienda en 20 palabras o menos y explica en 15 palabras más el por qué de esa recomendación.',
         },
       ],
     });
