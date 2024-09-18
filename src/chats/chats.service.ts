@@ -37,6 +37,45 @@ export class ChatsService {
   }
 
   async createChat(messageChatDto: MessageChatDto, shop: Shop) {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    let assistant = await this.chatModel.findOne({
+      shop: shop._id,
+      createdAt: { $gte: startOfDay },
+    });
+
+    if (!assistant) assistant = await this.createAssistant(shop);
+
+    await this.openai.beta.threads.messages.create(assistant.thread, {
+      role: 'user',
+      content: messageChatDto.message,
+    });
+
+    const run = await this.openai.beta.threads.runs.createAndPoll(
+      assistant.thread,
+      {
+        assistant_id: assistant.assistant,
+      },
+    );
+
+    const messages = await this.openai.beta.threads.messages.list(
+      assistant.thread,
+      {
+        run_id: run.id,
+      },
+    );
+
+    // @ts-ignore
+    const response = messages.data[0].content[0].text.value;
+    const cleanResponse = response.replace(/\s*【[^】]*】\s*/g, ' ').trim();
+
+    return {
+      response: cleanResponse,
+    };
+  }
+
+  async createAssistant(shop: Shop) {
     const productsQuery = await this.productModel
       .find({ shop: shop._id })
       .populate('category', 'name');
@@ -207,7 +246,7 @@ export class ChatsService {
         ruc: supplier.ruc,
         phone: supplier.phone,
         // @ts-ignore
-        products: supplier.products.map((product) => product._id.name),
+        products: supplier.products.map((product) => product.name),
       }));
 
       const jsonSuppliers = JSON.stringify(suppliers, null, 2);
@@ -233,96 +272,53 @@ export class ChatsService {
       tool_resources: { file_search: { vector_store_ids: [vectorStore.id] } },
     });
 
+    const thread = await this.openai.beta.threads.create();
+
+    const chat = {
+      shop: shop._id,
+      assistant: assistant.id,
+      thread: thread.id,
+      date: new Date(),
+    };
+
+    return this.chatModel.create(chat);
+  }
+
+  async createRecommendation(shop: Shop) {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    let assistant = await this.chatModel.findOne({
+      shop: shop._id,
+      createdAt: { $gte: startOfDay },
+    });
+
+    if (!assistant) assistant = await this.createAssistant(shop);
+
     const thread = await this.openai.beta.threads.create({
       messages: [
         {
           role: 'user',
-          content: messageChatDto.message,
+          content:
+            'Dame una sola recomendación para mejorar el rendimiento de mi tienda en 20 palabras o menos.',
         },
       ],
     });
 
     const run = await this.openai.beta.threads.runs.createAndPoll(thread.id, {
-      assistant_id: assistant.id,
+      assistant_id: assistant.assistant,
     });
 
     const messages = await this.openai.beta.threads.messages.list(thread.id, {
       run_id: run.id,
     });
 
-    const chat = new this.chatModel({
-      shop: shop._id,
-      messages: [
-        { role: 'user', text: messageChatDto.message },
-        // @ts-ignore
-        { role: 'assistant', text: messages.data[0].content[0].text.value },
-      ],
-      thread: thread.id,
-      assistant: assistant.id,
-    });
-
-    const createdChat = await chat.save();
+    // @ts-ignore
+    const response = messages.data[0].content[0].text.value;
+    const cleanResponse = response.replace(/\s*【[^】]*】\s*/g, ' ').trim();
 
     return {
-      _id: createdChat._id,
-      // @ts-ignore
-      response: messages.data[0].content[0].text.value,
+      response: cleanResponse,
     };
-  }
-
-  async responseChat(id: string, messageChatDto: MessageChatDto, shop: Shop) {
-    validateObjectId(id, 'chat');
-
-    const chat = await this.chatModel.findOne({ _id: id, shop: shop._id });
-    if (!chat) throw new HttpException('Chat not found', 404);
-
-    await this.openai.beta.threads.messages.create(chat.thread, {
-      role: 'user',
-      content: messageChatDto.message,
-    });
-
-    const run = await this.openai.beta.threads.runs.createAndPoll(chat.thread, {
-      assistant_id: chat.assistant,
-    });
-
-    const messages = await this.openai.beta.threads.messages.list(chat.thread, {
-      run_id: run.id,
-    });
-
-    await this.chatModel.updateOne(
-      { _id: id },
-      {
-        $push: {
-          messages: {
-            $each: [
-              {
-                role: 'user',
-                text: messageChatDto.message,
-              },
-              {
-                role: 'assistant',
-                // @ts-ignore
-                text: messages.data[0].content[0].text.value,
-              },
-            ],
-          },
-        },
-      },
-    );
-
-    return {
-      _id: id,
-      // @ts-ignore
-      response: messages.data[0].content[0].text.value,
-    };
-  }
-
-  getChatById(id: string, shop: Shop) {
-    validateObjectId(id, 'chat');
-    return this.chatModel.findOne({ _id: id, shop: shop._id });
-  }
-
-  getAllChats(shop: Shop) {
-    return this.chatModel.find({ shop: shop._id });
   }
 }

@@ -5,9 +5,6 @@ import { Shop } from './Shop.schema';
 @Schema({ timestamps: true })
 export class Chat {
   @Prop({ required: true })
-  messages: [{ role: string; text: string }];
-
-  @Prop({ required: true })
   thread: string;
 
   @Prop({ required: true })

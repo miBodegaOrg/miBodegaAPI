@@ -28,28 +28,9 @@ export class ChatsController {
     return this.chatsService.createChat(createChatDto, req.user);
   }
 
-  @Post('response/:id')
-  @UseGuards(AuthGuard(), PermissionsGuard)
-  @Permissions('chats.crear')
-  responseChat(
-    @Param('id') id: string,
-    @Body() messageChatDto: MessageChatDto,
-    @Req() req,
-  ) {
-    return this.chatsService.responseChat(id, messageChatDto, req.user);
-  }
-
-  @Get()
-  @UseGuards(AuthGuard(), PermissionsGuard)
-  @Permissions('chats.leer')
-  getAllChats(@Req() req) {
-    return this.chatsService.getAllChats(req.user);
-  }
-
-  @Get(':id')
-  @UseGuards(AuthGuard(), PermissionsGuard)
-  @Permissions('chats.leer')
-  getChatById(@Param('id') id: string, @Req() req) {
-    return this.chatsService.getChatById(id, req.user);
+  @Post('recommendation')
+  @UseGuards(AuthGuard())
+  createRecommendation(@Req() req) {
+    return this.chatsService.createRecommendation(req.user);
   }
 }

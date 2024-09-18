@@ -65,7 +65,7 @@ export class SuppliersService {
   }
 
   async getAllSuppliers(shop: Shop) {
-    const suppliers = await this.supplierModel.aggregate([
+    return this.supplierModel.aggregate([
       {
         $match: { shop: shop._id },
       },
@@ -111,7 +111,6 @@ export class SuppliersService {
         },
       },
     ]);
-    return suppliers;
   }
 
   async getSupplierByRuc(ruc: string, shop: Shop) {
