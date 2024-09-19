@@ -45,7 +45,10 @@ export class DashboardsController {
 
   @Get('today/sales')
   @UseGuards(AuthGuard())
-  getTodaySales(@Req() req) {
-    return this.dashboardsService.getSalesTodayDashboard(req.user);
+  async getTodaySales(@Req() req) {
+    const dashboard = await this.dashboardsService.getSalesTodayDashboard(
+      req.user,
+    );
+    return dashboard.length ? dashboard[0] : { sales: 0, total: 0 };
   }
 }

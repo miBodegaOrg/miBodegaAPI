@@ -27,7 +27,7 @@ export class AuthService {
   }
 
   async signIn(signInDto: SignInDto) {
-    const { username, password } = signInDto;
+    const { username, password, rememberCredentials } = signInDto;
 
     const shop = await this.shopModel.findOne({ ruc: username });
     if (shop) {
@@ -44,7 +44,7 @@ export class AuthService {
 
       return {
         ...response,
-        token: this.jwtService.sign({ id: shop._id, role: 'shop' }),
+        token: this.jwtService.sign({ id: shop._id, role: 'shop', rememberCredentials }),
       };
     } else {
       const employee = await this.employeeModel.findOne({
@@ -69,7 +69,35 @@ export class AuthService {
 
       return {
         ...response,
-        token: this.jwtService.sign({ id: employee._id, role: 'employee' }),
+        token: this.jwtService.sign({ id: employee._id, role: 'employee', rememberCredentials }),
+      };
+    }
+  }
+
+  async rememberCredentials(shop) {
+    console.log(shop)
+    if (!shop.rememberCredentials)
+      throw new UnauthorizedException('Invalid tokennn');
+
+    if (shop.role === 'shop') {
+      const shopDoc = await this.shopModel.findById(shop._id);
+      if (!shopDoc) throw new UnauthorizedException('Invalid token');
+
+      return {
+        name: shopDoc.name,
+        username: shopDoc.ruc,
+        phone: shopDoc.phone,
+        type: 'shop',
+      };
+    } else if (shop.role === 'employee') {
+      const employee = await this.employeeModel.findById(shop._id);
+      if (!employee) throw new UnauthorizedException('Invalid token');
+
+      return {
+        name: employee.name,
+        username: employee.dni,
+        phone: employee.phone,
+        type: 'employee',
       };
     }
   }
@@ -79,7 +107,11 @@ export class AuthService {
       const shop = await this.shopModel.findById(payload.id);
       if (!shop) throw new UnauthorizedException('Invalid token');
 
-      return { ...shop.toObject(), role: 'shop' };
+      return {
+        ...shop.toObject(),
+        role: 'shop',
+        rememberCredentials: payload.rememberCredentials,
+      };
     } else if (payload.role === 'employee') {
       const employee = await this.employeeModel.findById(payload.id);
       if (!employee) throw new UnauthorizedException('Invalid token');
@@ -91,6 +123,7 @@ export class AuthService {
         ...shop.toObject(),
         role: 'employee',
         permissions: employee.permissions,
+        rememberCredentials: payload.rememberCredentials,
       };
     } else {
       throw new UnauthorizedException('Invalid token');
