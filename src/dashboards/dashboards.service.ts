@@ -191,4 +191,32 @@ export class DashboardsService {
       },
     ]);
   }
+
+  getSalesTodayDashboard(shop: Shop) {
+    return this.saleModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(new Date().setHours(0, 0, 0, 0)),
+          },
+          status: 'paid',
+          shop: shop._id,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          sales: { $sum: 1 },
+          total: { $sum: '$total' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          sales: 1,
+          total: 1,
+        },
+      },
+    ]);
+  }
 }

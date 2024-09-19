@@ -42,4 +42,10 @@ export class DashboardsController {
   getInventoryDashboard(@Req() req) {
     return this.dashboardsService.getInventoryDashboard(req.user);
   }
+
+  @Get('today/sales')
+  @UseGuards(AuthGuard())
+  getTodaySales(@Req() req) {
+    return this.dashboardsService.getSalesTodayDashboard(req.user);
+  }
 }
