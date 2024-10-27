@@ -181,6 +181,10 @@ export class ProductsService {
       { _id: product.subcategory },
       { $pull: { products: deletedProduct._id } },
     );
+    await this.supplierModel.updateOne(
+      { _id: product.supplier },
+      { $pull: { products: { _id: deletedProduct._id } } },
+    );
     return deletedProduct;
   }
 
