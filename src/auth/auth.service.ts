@@ -7,8 +7,6 @@ import { JwtService } from '@nestjs/jwt';
 import { SignUpDto } from './dto/SignUp.dto';
 import { SignInDto } from './dto/SignIn.dto';
 import { Employee } from 'src/schemas/Employee.schema';
-import e from 'express';
-import { permission } from 'process';
 
 @Injectable()
 export class AuthService {
@@ -44,7 +42,11 @@ export class AuthService {
 
       return {
         ...response,
-        token: this.jwtService.sign({ id: shop._id, role: 'shop', rememberCredentials }),
+        token: this.jwtService.sign({
+          id: shop._id,
+          role: 'shop',
+          rememberCredentials,
+        }),
       };
     } else {
       const employee = await this.employeeModel.findOne({
@@ -69,15 +71,19 @@ export class AuthService {
 
       return {
         ...response,
-        token: this.jwtService.sign({ id: employee._id, role: 'employee', rememberCredentials }),
+        token: this.jwtService.sign({
+          id: employee._id,
+          role: 'employee',
+          rememberCredentials,
+        }),
       };
     }
   }
 
   async rememberCredentials(shop) {
-    console.log(shop)
+    console.log(shop);
     if (!shop.rememberCredentials)
-      throw new UnauthorizedException('Invalid tokennn');
+      throw new UnauthorizedException('Invalid token');
 
     if (shop.role === 'shop') {
       const shopDoc = await this.shopModel.findById(shop._id);
@@ -127,6 +133,34 @@ export class AuthService {
       };
     } else {
       throw new UnauthorizedException('Invalid token');
+    }
+  }
+
+  async changePassword(shop, oldPassword: string, newPassword: string) {
+    if (shop.role === 'employee') {
+      const employee = await this.employeeModel.findById(shop._id);
+      if (!employee) throw new UnauthorizedException('Invalid token');
+      const isPasswordMatched = await bcrypt.compare(
+        oldPassword,
+        employee.password,
+      );
+      if (!isPasswordMatched)
+        throw new UnauthorizedException('Invalid password');
+      employee.password = await bcrypt.hash(newPassword, 10);
+      await employee.save();
+      return { msg: 'Password changed successfully' };
+    } else {
+      const shopDoc = await this.shopModel.findById(shop._id);
+      if (!shopDoc) throw new UnauthorizedException('Invalid token');
+      const isPasswordMatched = await bcrypt.compare(
+        oldPassword,
+        shopDoc.password,
+      );
+      if (!isPasswordMatched)
+        throw new UnauthorizedException('Invalid password');
+      shopDoc.password = await bcrypt.hash(newPassword, 10);
+      await shopDoc.save();
+      return { msg: 'Password changed successfully' };
     }
   }
 }

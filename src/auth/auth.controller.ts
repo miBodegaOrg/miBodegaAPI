@@ -25,4 +25,14 @@ export class AuthController {
   rememberCredentials(@Req() req) {
     return this.authService.rememberCredentials(req.user);
   }
+
+  @Post('change-password')
+  @UseGuards(AuthGuard())
+  changePassword(
+    @Req() req,
+    @Body('newPassword') newPassword: string,
+    @Body('oldPassword') oldPassword: string,
+  ) {
+    return this.authService.changePassword(req.user, oldPassword, newPassword);
+  }
 }
