@@ -56,7 +56,7 @@ export class EmployeesService {
         dni: updateEmployeeDto.dni,
         shop: shop._id,
       });
-      if (employee)
+      if (employee && employee._id.toString() !== id)
         throw new HttpException('Employee with this dni already exists', 400);
     }
 
