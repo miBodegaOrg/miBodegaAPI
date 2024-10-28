@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/SignUp.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { SignInDto } from './dto/SignIn.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { UpdateProfileDto } from './dto/UpdateProfile.dto';
 
 @ApiTags('Auth')
 @Controller('api/v1/auth')
@@ -26,7 +27,7 @@ export class AuthController {
     return this.authService.rememberCredentials(req.user);
   }
 
-  @Post('change-password')
+  @Put('change-password')
   @UseGuards(AuthGuard())
   changePassword(
     @Req() req,
@@ -34,5 +35,11 @@ export class AuthController {
     @Body('oldPassword') oldPassword: string,
   ) {
     return this.authService.changePassword(req.user, oldPassword, newPassword);
+  }
+
+  @Put('update-profile')
+  @UseGuards(AuthGuard())
+  updateProfile(@Req() req, @Body() updateProfileDto: UpdateProfileDto) {
+    return this.authService.updateProfile(req.user, updateProfileDto);
   }
 }

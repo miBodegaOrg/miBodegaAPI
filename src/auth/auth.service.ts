@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { SignUpDto } from './dto/SignUp.dto';
 import { SignInDto } from './dto/SignIn.dto';
 import { Employee } from 'src/schemas/Employee.schema';
+import { UpdateProfileDto } from "./dto/UpdateProfile.dto";
 
 @Injectable()
 export class AuthService {
@@ -162,5 +163,9 @@ export class AuthService {
       await shopDoc.save();
       return { msg: 'Password changed successfully' };
     }
+  }
+
+  async updateProfile(shop: Shop, updateProfileDto: UpdateProfileDto) {
+    return this.shopModel.findByIdAndUpdate(shop._id, updateProfileDto, { new: true });
   }
 }
