@@ -30,7 +30,6 @@ export class UpdateEmployeeDto {
 
   @IsString()
   @IsOptional()
-  @MinLength(6)
   password: string;
 
   @IsOptional()

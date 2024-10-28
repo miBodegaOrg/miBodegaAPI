@@ -67,6 +67,10 @@ export class EmployeesService {
       );
     }
 
+    if (updateEmployeeDto.password == '') {
+      delete updateEmployeeDto.password;
+    }
+
     const employee = await this.employeeModel.findOneAndUpdate(
       { _id: id, shop: shop._id },
       updateEmployeeDto,
