@@ -27,6 +27,9 @@ export class Employee {
 
   @Prop({ default: [] })
   permissions: string[];
+
+  @Prop()
+  changePasswordCode: string;
 }
 
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);

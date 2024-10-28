@@ -17,6 +17,9 @@ export class Shop extends Document {
 
   @Prop({ required: true })
   password: string;
+
+  @Prop()
+  changePasswordCode: string;
 }
 
 export const ShopSchema = SchemaFactory.createForClass(Shop);
