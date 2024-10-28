@@ -17,6 +17,7 @@ import { EmployeesModule } from './employees/employees.module';
 import { DiscountsModule } from './discounts/discounts.module';
 import { PromotionsController } from './promotions/promotions.controller';
 import { PromotionsModule } from './promotions/promotions.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { PromotionsModule } from './promotions/promotions.module';
     EmployeesModule,
     DiscountsModule,
     PromotionsModule,
+    SettingsModule,
   ],
   controllers: [],
   providers: [R2Service],
