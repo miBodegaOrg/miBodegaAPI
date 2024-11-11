@@ -38,7 +38,7 @@ export class SalesService {
       });
     }
 
-    return this.saleModel.paginate(query, { page, limit });
+    return this.saleModel.paginate(query, { page, limit, sort: {createdAt: -1} });
   }
 
   async getSaleById(id: string, shop: Shop) {

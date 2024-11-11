@@ -53,7 +53,10 @@ export class DiscountsService {
           shop,
         )
       )
-        throw new HttpException('Product already has an active discount', 400);
+        throw new HttpException(
+          `El producto ${product.name} ya tiene un descuento activo`,
+          400,
+        );
 
       if (
         await this.promotionService.isActivePromotion(
@@ -63,7 +66,10 @@ export class DiscountsService {
           shop,
         )
       )
-        throw new HttpException('Product already has an active promotion', 400);
+        throw new HttpException(
+          `El producto ${product.name} ya tiene una promoción activa`,
+          400,
+        );
     }
 
     const data = { ...createDiscountDto, shop: shop._id };
