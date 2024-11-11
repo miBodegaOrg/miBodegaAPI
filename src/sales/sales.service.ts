@@ -86,20 +86,20 @@ export class SalesService {
         products: prod._id,
       });
 
-      if (discount) {
-        createSaleDto.products[i].discount =
-          prod.price * (discount.percentage / 100);
-      } else if (prod.activePromo && prod.activePromo?.type === 'promotion') {
-        const promotion = await this.promotionModel.findOne({
-          _id: prod.activePromo.id,
-          shop: shop._id,
-        });
-        if (!promotion) throw new HttpException('Promotion not found', 404);
+      const promotion = await this.promotionModel.findOne({
+        shop: shop._id,
+        startDate: { $lte: new Date() },
+        endDate: { $gte: new Date() },
+        products: prod._id,
+      });
 
-        createSaleDto.products[i].discount = promotion.price;
+      if (discount) {
+        discountProd +=
+          prod.price * (discount.percentage / 100) * createSaleDto.products[i].quantity;
+      } else if (promotion) {
         const gift = promotion.buy - promotion.pay;
 
-        createSaleDto.products[i].discount = prod.price * gift;
+        discountProd += prod.price * (gift / promotion.buy) * createSaleDto.products[i].quantity;
       } else {
         createSaleDto.products[i].discount = 0;
       }
@@ -109,8 +109,6 @@ export class SalesService {
         createSaleDto.products[i].discount -
         createSaleDto.products[i].cost;
 
-      discountProd +=
-        createSaleDto.products[i].discount * createSaleDto.products[i].quantity;
       subtotal += prod.price * createSaleDto.products[i].quantity;
     }
 

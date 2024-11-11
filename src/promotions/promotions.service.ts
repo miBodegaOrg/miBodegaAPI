@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { forwardRef, HttpException, Inject, Injectable } from "@nestjs/common";
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Promotion } from 'src/schemas/Promotion.schema';
@@ -7,12 +7,14 @@ import { CreatePromotionDto } from './dto/CreatePromotion.dto';
 import { UpdatePromotionDto } from './dto/UpdatePromotion.dto';
 import { validateObjectId } from 'src/utils/validateObjectId';
 import { Product } from 'src/schemas/Product.schema';
+import { DiscountsService } from "../discounts/discounts.service";
 
 @Injectable()
 export class PromotionsService {
   constructor(
     @InjectModel(Promotion.name) private promotionModel: Model<Promotion>,
     @InjectModel(Product.name) private productModel: Model<Product>,
+    @Inject(forwardRef(() => DiscountsService)) private discountsService: DiscountsService
   ) {}
 
   getPromotions(shop: Shop) {
@@ -43,6 +45,26 @@ export class PromotionsService {
         shop: shop._id,
       });
       if (!product) throw new HttpException('Product not found', 404);
+
+      if (
+        await this.isActivePromotion(
+          product._id,
+          createPromotionDto.startDate,
+          createPromotionDto.endDate,
+          shop,
+        )
+      )
+        throw new HttpException(`El producto ${product.name} ya tiene una promoción activa`, 400);
+
+      if (
+        await this.discountsService.isActiveDiscount(
+          product._id,
+          createPromotionDto.startDate,
+          createPromotionDto.endDate,
+          shop,
+        )
+      )
+        throw new HttpException(`El producto ${product.name} ya tiene un descuento activo`, 400);
     }
 
     const data = { ...createPromotionDto, shop: shop._id };

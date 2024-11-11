@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { forwardRef, HttpException, Inject, Injectable } from "@nestjs/common";
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Discount } from 'src/schemas/Discount.schema';
@@ -14,7 +14,7 @@ export class DiscountsService {
   constructor(
     @InjectModel(Discount.name) private discountModel: Model<Discount>,
     @InjectModel(Product.name) private productModel: Model<Product>,
-    private promotionService: PromotionsService,
+    @Inject(forwardRef(() => PromotionsService)) private promotionService: PromotionsService,
   ) {}
 
   async getAllDiscounts(shop: Shop) {

@@ -11,7 +11,7 @@ import { PromotionsService } from "../promotions/promotions.service";
 @Module({
   imports: [
     AuthModule,
-    PromotionsModule,
+    forwardRef(() => PromotionsModule),
     MongooseModule.forFeature([
       { name: Discount.name, schema: DiscountSchema },
       { name: Product.name, schema: ProductSchema },
