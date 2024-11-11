@@ -111,4 +111,31 @@ export class PromotionsService {
 
     return this.promotionModel.findOneAndDelete({ _id: id, shop: shop._id });
   }
+
+  async isActivePromotion(
+    productId,
+    startDate: Date,
+    endDate: Date,
+    shop: Shop,
+  ) {
+    const discounts = await this.promotionModel.find({
+      products: productId,
+      active: true,
+      shop: shop._id,
+    });
+
+    for (let i = 0; i < discounts.length; i++) {
+      if (
+        (new Date(startDate) >= discounts[i].startDate &&
+          new Date(startDate) <= discounts[i].endDate) ||
+        (new Date(endDate) >= discounts[i].startDate &&
+          new Date(endDate) <= discounts[i].endDate) ||
+        (new Date(startDate) <= discounts[i].startDate &&
+          new Date(endDate) >= discounts[i].endDate)
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

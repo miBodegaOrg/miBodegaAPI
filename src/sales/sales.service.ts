@@ -4,7 +4,6 @@ import mongoose, { Model, PaginateModel } from 'mongoose';
 import { Sale } from 'src/schemas/Sales.schema';
 import { CreateSaleDto } from './dto/CreateSale.dto';
 import { Shop } from 'src/schemas/Shop.schema';
-import { ProductsService } from 'src/products/products.service';
 import { Product } from 'src/schemas/Product.schema';
 import { Discount } from 'src/schemas/Discount.schema';
 import { Promotion } from 'src/schemas/Promotion.schema';
@@ -59,7 +58,7 @@ export class SalesService {
       throw new HttpException('Products code must be unique', 400);
 
     let subtotal = 0;
-    let discount = 0;
+    let discountProd = 0;
     for (let i = 0; i < createSaleDto.products.length; i++) {
       const prod = await this.productModel.findOne({
         code: createSaleDto.products[i].code,
@@ -78,18 +77,18 @@ export class SalesService {
 
       createSaleDto.products[i].name = prod.name;
       createSaleDto.products[i].price = prod.price;
-
       createSaleDto.products[i].cost = prod.cost ? prod.cost : 0;
 
-      if (prod.activePromo && prod.activePromo?.type === 'discount') {
-        const discountDoc = await this.discountModel.findOne({
-          _id: prod.activePromo.id,
-          shop: shop._id,
-        });
-        if (!discountDoc) throw new HttpException('Discount not found', 404);
+      const discount = await this.discountModel.findOne({
+        shop: shop._id,
+        startDate: { $lte: new Date() },
+        endDate: { $gte: new Date() },
+        products: prod._id,
+      });
 
+      if (discount) {
         createSaleDto.products[i].discount =
-          prod.price - (prod.price * discountDoc.percentage) / 100;
+          prod.price * (discount.percentage / 100);
       } else if (prod.activePromo && prod.activePromo?.type === 'promotion') {
         const promotion = await this.promotionModel.findOne({
           _id: prod.activePromo.id,
@@ -110,14 +109,13 @@ export class SalesService {
         createSaleDto.products[i].discount -
         createSaleDto.products[i].cost;
 
-      discount +=
+      discountProd +=
         createSaleDto.products[i].discount * createSaleDto.products[i].quantity;
       subtotal += prod.price * createSaleDto.products[i].quantity;
     }
 
-    const igv = (subtotal - discount) * 0.18;
-    const total = subtotal - discount;
-    subtotal -= igv;
+    const igv = (subtotal - discountProd) * 0.18;
+    const total = subtotal - discountProd + igv;
 
     const data = Object.assign(createSaleDto, {
       shop: shop._id,
@@ -125,7 +123,7 @@ export class SalesService {
       subtotal,
       igv,
       total,
-      discount,
+      discount: discountProd,
     });
 
     const createdSale = new this.saleModel(data);

@@ -22,5 +22,6 @@ import { Product, ProductSchema } from 'src/schemas/Product.schema';
   ],
   controllers: [PromotionsController],
   providers: [PromotionsService],
+  exports: [PromotionsService],
 })
 export class PromotionsModule {}

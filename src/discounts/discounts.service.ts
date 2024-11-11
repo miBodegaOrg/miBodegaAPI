@@ -7,13 +7,14 @@ import { CreateDiscountDto } from './dto/CreateDiscount..dto';
 import { validateObjectId } from 'src/utils/validateObjectId';
 import { Product } from 'src/schemas/Product.schema';
 import { UpdateDiscountDto } from './dto/UpdateDiscount.dto';
-import { privateDecrypt } from 'crypto';
+import { PromotionsService } from '../promotions/promotions.service';
 
 @Injectable()
 export class DiscountsService {
   constructor(
     @InjectModel(Discount.name) private discountModel: Model<Discount>,
     @InjectModel(Product.name) private productModel: Model<Product>,
+    private promotionService: PromotionsService,
   ) {}
 
   async getAllDiscounts(shop: Shop) {
@@ -32,14 +33,8 @@ export class DiscountsService {
     });
     if (discount) throw new HttpException('Discount name already exists', 400);
 
-    let active = false;
-    if (
-      createDiscountDto.active &&
-      (!createDiscountDto.startDate ||
-        createDiscountDto.startDate <= new Date()) &&
-      (!createDiscountDto.endDate || createDiscountDto.endDate >= new Date())
-    )
-      active = true;
+    if (createDiscountDto.startDate > createDiscountDto.endDate)
+      throw new HttpException('Start date must be before end date', 400);
 
     for (let i = 0; i < createDiscountDto.products.length; i++) {
       validateObjectId(createDiscountDto.products[i], 'Product');
@@ -50,33 +45,30 @@ export class DiscountsService {
       });
       if (!product) throw new HttpException('Product not found', 404);
 
-      //if (this.validActiveDiscount(product)) throw new HttpException('Product already has an active promotion', 400);
-    }
+      if (
+        await this.isActiveDiscount(
+          product._id,
+          createDiscountDto.startDate,
+          createDiscountDto.endDate,
+          shop,
+        )
+      )
+        throw new HttpException('Product already has an active discount', 400);
 
-    if (
-      createDiscountDto.startDate &&
-      createDiscountDto.endDate &&
-      createDiscountDto.startDate > createDiscountDto.endDate
-    )
-      throw new HttpException('Start date must be before end date', 400);
+      if (
+        await this.promotionService.isActivePromotion(
+          product._id,
+          createDiscountDto.startDate,
+          createDiscountDto.endDate,
+          shop,
+        )
+      )
+        throw new HttpException('Product already has an active promotion', 400);
+    }
 
     const data = { ...createDiscountDto, shop: shop._id };
 
-    const createdDiscount = await this.discountModel.create(data);
-
-    for (let i = 0; i < createDiscountDto.products.length; i++) {
-      const product = await this.productModel.findOne({
-        _id: createDiscountDto.products[i],
-        shop: shop._id,
-      });
-      product.activePromo = {
-        type: 'discount',
-        id: createdDiscount._id.toString(),
-      };
-      product.save();
-    }
-
-    return createdDiscount;
+    return await this.discountModel.create(data);
   }
 
   async updateDiscount(
@@ -156,29 +148,28 @@ export class DiscountsService {
     return this.discountModel.findByIdAndDelete(id);
   }
 
-  async validActiveDiscount(
-    productId: string,
+  async isActiveDiscount(
+    productId,
     startDate: Date,
     endDate: Date,
     shop: Shop,
   ) {
     const discounts = await this.discountModel.find({
+      products: productId,
       active: true,
       shop: shop._id,
-      products: productId,
     });
     for (let i = 0; i < discounts.length; i++) {
       if (
-        (startDate >= discounts[i].startDate &&
-          startDate <= discounts[i].endDate) ||
-        (endDate >= discounts[i].startDate &&
-          endDate <= discounts[i].endDate) ||
-        (startDate <= discounts[i].startDate && endDate >= discounts[i].endDate)
+        (new Date(startDate) >= discounts[i].startDate &&
+          new Date(startDate) <= discounts[i].endDate) ||
+        (new Date(endDate) >= discounts[i].startDate &&
+          new Date(endDate) <= discounts[i].endDate) ||
+        (new Date(startDate) <= discounts[i].startDate && new Date(endDate) >= discounts[i].endDate)
       ) {
-        return false;
+        return true;
       }
     }
-
-    return true;
+    return false;
   }
 }

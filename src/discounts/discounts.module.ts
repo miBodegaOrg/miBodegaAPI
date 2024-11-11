@@ -5,10 +5,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Discount, DiscountSchema } from 'src/schemas/Discount.schema';
 import { Product, ProductSchema } from 'src/schemas/Product.schema';
 import { AuthModule } from 'src/auth/auth.module';
+import { PromotionsModule } from "../promotions/promotions.module";
 
 @Module({
   imports: [
     AuthModule,
+    PromotionsModule,
     MongooseModule.forFeature([
       { name: Discount.name, schema: DiscountSchema },
       { name: Product.name, schema: ProductSchema },

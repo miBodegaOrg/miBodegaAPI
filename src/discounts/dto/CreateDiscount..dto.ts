@@ -2,10 +2,8 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsBoolean,
-  IsDate,
   IsNotEmpty,
   IsNumber,
-  IsOptional,
   IsString,
   Max,
   Min,
@@ -16,10 +14,10 @@ export class CreateDiscountDto {
   @IsNotEmpty()
   name: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   startDate: Date;
 
-  @IsOptional()
+  @IsNotEmpty()
   endDate: Date;
 
   @Max(100)
