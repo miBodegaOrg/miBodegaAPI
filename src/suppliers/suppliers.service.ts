@@ -182,7 +182,7 @@ export class SuppliersService {
             `Product with code ${updateSupplierDto.products[i].code} not found`,
             404,
           );
-        if (product.supplier && product.supplier != supplier._id)
+        if (product.supplier && product.supplier.toString() != supplier._id.toString())
           throw new HttpException(
             `Product with code ${updateSupplierDto.products[i].code} already has a supplier`,
             400,
